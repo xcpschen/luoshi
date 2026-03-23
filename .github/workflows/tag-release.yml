@@ -75,6 +75,9 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: bash ./scripts/init.sh
+      - name: Install Snapcraft
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo snap install snapcraft --classic
 
       - name: init ( Linux/osx )
         if: runner.os == 'Linux' || runner.os == 'macOS'
@@ -121,31 +124,31 @@ jobs:
 #                dist-release/*.AppImage:apps/linkandroid-${{ env.DIST_FILE_NAME }}/
 #                dist-release/*.deb:apps/linkandroid-${{ env.DIST_FILE_NAME }}/
 
-#      - name: Upload Artifact Windows
-#        if: runner.os == 'Windows'
-#        uses: actions/upload-artifact@v4
-#        with:
-#            name: windows-artifact
-#            path: |
-#                dist-release/*.exe
-#
-#      - name: Upload Artifact Macos
-#        if: runner.os == 'macOS'
-#        uses: actions/upload-artifact@v4
-#        with:
-#            name: macos-artifact
-#            path: |
-#                dist-release/*.dmg
-#
-#      - name: Upload Artifact Linux
-#        if: runner.os == 'Linux'
-#        uses: actions/upload-artifact@v4
-#        with:
-#            name: linux-artifact
-#            path: |
-#                dist-release/*.AppImage
-#                dist-release/*.deb
-#
+      - name: Upload Artifact Windows
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+            name: windows-artifact
+            path: |
+                dist-release/*.exe
+  #
+      - name: Upload Artifact Macos
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+            name: macos-artifact
+            path: |
+                dist-release/*.dmg
+
+      - name: Upload Artifact Linux
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+            name: linux-artifact
+            path: |
+                dist-release/*.AppImage
+                dist-release/*.deb
+
 #      - name: Release Assets
 #        uses: softprops/action-gh-release@v2
 #        with:
