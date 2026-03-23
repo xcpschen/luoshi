@@ -23,8 +23,6 @@ jobs:
 
     steps:
       - name: Checkout Code
-        fetch-depth: 1 
-        submodules: false
         uses: actions/checkout@v4
 
       - name: Setup Node.js
