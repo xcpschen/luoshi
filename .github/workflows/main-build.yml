@@ -9,6 +9,8 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60 
+    permissions:
+      contents: write  # 允许创建 Release 并上传附件
 
     strategy:
       matrix:
@@ -37,34 +39,35 @@ jobs:
       - name: Cert Prepare (macOS)
         if: runner.os == 'macOS'
         env:
-            MACOS_CERTIFICATE: ${{ secrets.CORP_MACOS_CERTIFICATE }}
-            MACOS_CERTIFICATE_PASSWORD: ${{ secrets.CORP_MACOS_CERTIFICATE_PASSWORD }}
-        run: |
-            echo "find-identity"
-            security find-identity -p codesigning
-            echo "$MACOS_CERTIFICATE" | base64 --decode > certificate.p12
-            security create-keychain -p "" build.keychain
-            security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-            security list-keychains -s build.keychain
-            security set-keychain-settings -t 3600 -u build.keychain
-            security unlock-keychain -p "" build.keychain
-            echo "find-identity"
-            security find-identity -v -p codesigning build.keychain
-            echo "find-identity"
-            security find-identity -p codesigning
-            echo "set-key-partition-list"
-            security set-key-partition-list -S apple-tool:,apple: -s -k "" -l "Mac Developer ID Application: Xi'an Yanyi Information Technology Co., Ltd" -t private build.keychain
-            echo "export"
-            security export -k build.keychain -t certs -f x509 -p -o certificate.cer
-            echo "add-trusted-cert"
-            sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain certificate.cer
-            echo "find-identity"
-            security find-identity -p codesigning
+          CSC_SKIP_SIGNING: true
+            # MACOS_CERTIFICATE: ${{ secrets.CORP_MACOS_CERTIFICATE }}
+            # MACOS_CERTIFICATE_PASSWORD: ${{ secrets.CORP_MACOS_CERTIFICATE_PASSWORD }}
+        # run: |
+        #     echo "find-identity"
+        #     security find-identity -p codesigning
+        #     echo "$MACOS_CERTIFICATE" | base64 --decode > certificate.p12
+        #     security create-keychain -p "" build.keychain
+        #     security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+        #     security list-keychains -s build.keychain
+        #     security set-keychain-settings -t 3600 -u build.keychain
+        #     security unlock-keychain -p "" build.keychain
+        #     echo "find-identity"
+        #     security find-identity -v -p codesigning build.keychain
+        #     echo "find-identity"
+        #     security find-identity -p codesigning
+        #     echo "set-key-partition-list"
+        #     security set-key-partition-list -S apple-tool:,apple: -s -k "" -l "Mac Developer ID Application: Xi'an Yanyi Information Technology Co., Ltd" -t private build.keychain
+        #     echo "export"
+        #     security export -k build.keychain -t certs -f x509 -p -o certificate.cer
+        #     echo "add-trusted-cert"
+        #     sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain certificate.cer
+        #     echo "find-identity"
+        #     security find-identity -p codesigning
 
       - name: Install Dependencies
+        env:
+          ELECTRON_MIRROR: https://npmmirror.com
         run: |
-          npm config set registry https://registry.npmmirror.com
-          npm config set electron_mirror https://npmmirror.com
           npm install
 
       - name: init ( Windows )
