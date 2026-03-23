@@ -1,0 +1,57 @@
+{
+    "appId": "LinkAndroid",
+    "asar": true,
+    "npmRebuild": true,
+    "publish": [],
+    "productName": "LinkAndroid",
+    "npmRebuild": true,
+    "buildDependenciesFromSource": false,
+    "directories": {
+        "output": "dist-release",
+        "buildResources": "electron/resources/build"
+    },
+    "afterPack": "./scripts/build_optimize.cjs",
+    "files": [
+        "dist",
+        "dist-electron"
+    ],
+    "win": {
+        "icon": "electron/resources/build/logo.ico",
+        "target": [
+            {
+                "target": "nsis",
+                "arch": ["x64", "arm64"]
+            }
+        ],
+        "artifactName": "${productName}-${version}-win-${arch}.${ext}",
+        "extraResources": [
+            {
+                "from": "electron/resources/extra",
+                "to": "extra",
+                "filter": ["common", "win"]
+            }
+        ]
+    },
+    "nsis": {
+        "artifactName": "${productName}-${version}-win-setup-${arch}.${ext}",
+        "shortcutName": "${productName}",
+        "uninstallDisplayName": "${productName}",
+        "oneClick": false,
+        "perMachine": false,
+        "allowToChangeInstallationDirectory": true,
+        "deleteAppDataOnUninstall": false
+    },
+    "portable": {
+        "artifactName": "${productName}-${version}-win-portable-${arch}.${ext}",
+        "requestExecutionLevel": "user"
+    },
+    "appx": {
+        "identityName": "LinkAndroid",
+        "publisher": "CN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXX",
+        "publisherDisplayName": "LinkAndroid",
+        "languages": [
+            "zh-CN",
+            "en-US",
+        ]
+    },
+}

@@ -1,0 +1,53 @@
+// @see https://www.electron.build/configuration/configuration
+{
+    "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+    "appId": "LinkAndroid",
+    "asar": true,
+    "npmRebuild": true,
+    "publish": [],
+    "productName": "LinkAndroid",
+    "buildDependenciesFromSource": false,
+    "directories": {
+        "output": "dist-release",
+        "buildResources": "electron/resources/build"
+    },
+    "afterPack": "./scripts/build_optimize.cjs",
+    "files": [
+        "dist",
+        "dist-electron"
+    ],
+    "linux": {
+        "icon": "logo.icns",
+        "desktop": "logo",
+        "maintainer": "LinkAndroid",
+        "category": "Utility",
+        "target": [
+            {
+                "target": "AppImage",
+                "arch": [
+                    "x64",
+                    "arm64"
+                ]
+            },
+            {
+                "target": "deb",
+                "arch": [
+                    "x64",
+                    "arm64"
+                ]
+            }
+        ],
+        "artifactName": "${productName}-${version}-linux-${arch}.${ext}",
+        "extraResources": [
+            {
+                "from": "electron/resources/extra",
+                "to": "extra",
+                "filter": [
+                    "common",
+                    "linux"
+                ]
+            }
+        ]
+    },
+    "afterSign": "./scripts/notarize.cjs"
+}

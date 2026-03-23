@@ -1,0 +1,46 @@
+{
+    "appId": "LinkAndroid",
+    "asar": true,
+    "npmRebuild": true,
+    "publish": [],
+    "productName": "LinkAndroid",
+    "directories": {
+        "output": "dist-release",
+        "buildResources": "electron/resources/build"
+    },
+    "afterPack": "./scripts/build_optimize.cjs",
+    "files": [
+        "dist",
+        "dist-electron"
+    ],
+    "mac": {
+        "icon": "logo.icns",
+        "target": [
+            {
+                "target": "dmg",
+                "arch": ["x64", "arm64"]
+            }
+        ],
+        "artifactName": "${productName}-${version}-mac-${arch}.${ext}",
+        "extraResources": [
+            {
+                "from": "electron/resources/extra",
+                "to": "extra",
+                "filter": ["common", "osx"]
+            }
+        ],
+        "x64ArchFiles": "Contents/Resources/extra/**/*",
+        "entitlementsInherit": "./entitlements.mac.plist",
+        "entitlements": "./entitlements.mac.plist",
+        "extendInfo": {
+            "NSDocumentsFolderUsageDescription": "Application requests access to the user's Documents folder.",
+            "NSDownloadsFolderUsageDescription": "Application requests access to the user's Downloads folder."
+        },
+        "type": "development",
+        "notarize": false,
+        "darkModeSupport": true,
+        "hardenedRuntime": true,
+        "identity": ""
+    },
+    "afterSign": "./scripts/notarize.cjs"
+}
