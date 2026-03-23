@@ -83,7 +83,10 @@ jobs:
 
       - name: Install Dependencies
         working-directory: code
-        run: npm install
+        run: |
+          npm config set registry https://registry.npmmirror.com
+          npm config set electron_mirror https://npmmirror.com
+          npm install
 
       - name: init ( Windows )
         if: runner.os == 'Windows'

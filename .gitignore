@@ -36,3 +36,4 @@ database.db
 
 electron/resources/extra/osx-*
 scripts/electron/
+scripts/share-binary/

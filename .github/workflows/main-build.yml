@@ -61,7 +61,10 @@ jobs:
             security find-identity -p codesigning
 
       - name: Install Dependencies
-        run: npm install
+        run: |
+          npm config set registry https://registry.npmmirror.com
+          npm config set electron_mirror https://npmmirror.com
+          npm install
 
       - name: init ( Windows )
         if: runner.os == 'Windows'
