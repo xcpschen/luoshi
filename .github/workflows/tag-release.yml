@@ -43,8 +43,8 @@ jobs:
           CSC_SKIP_SIGNING: true
             # MACOS_CERTIFICATE: ${{ secrets.CORP_MACOS_CERTIFICATE }}
             # MACOS_CERTIFICATE_PASSWORD: ${{ secrets.CORP_MACOS_CERTIFICATE_PASSWORD }}
-        # run: |
-        #     echo "find-identity"
+        run: |
+            echo "find-identity"
         #     security find-identity -p codesigning
         #     echo "$MACOS_CERTIFICATE" | base64 --decode > certificate.p12
         #     security create-keychain -p "" build.keychain
