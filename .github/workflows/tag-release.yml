@@ -15,13 +15,15 @@ jobs:
     strategy:
       fail-fast: false 
       matrix:
-        include:
-            - os: ubuntu-latest
-              arch: [arm64, amd64]
-            - os: macos-latest
-              arch: [arm64, amd64]
-            - os: windows-latest
-              arch: [arm64, amd64]
+        os: [macos-latest, windows-latest]
+        arch: [arm64, amd64]
+        # include:
+        #     - os: ubuntu-latest
+        #       arch: [arm64, amd64]
+        #     - os: macos-latest
+        #       arch: [arm64, amd64]
+        #     - os: windows-latest
+        #       arch: [arm64, amd64]
 
     steps:
       - name: Checkout Code
@@ -155,6 +157,7 @@ jobs:
       - name: Release Assets
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
+        overwrite: true
         with:
             files: |
                 dist/*.exe
