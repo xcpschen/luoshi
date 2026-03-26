@@ -157,7 +157,6 @@ jobs:
       - name: Release Assets
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
-        overwrite: true
         with:
             files: |
                 dist/*.exe
