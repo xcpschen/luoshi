@@ -27,9 +27,6 @@ function calcSha256File(filePath) {
 
 
 const platformName = () => {
-    if (process.env.PLATFORM) {
-        return process.env.PLATFORM;
-    }
     switch (process.platform) {
         case "darwin":
             return "osx";
@@ -42,13 +39,6 @@ const platformName = () => {
 }
 
 const platformArch = () => {
-    // 优先从环境变量 ARCH 获取
-    if (process.env.ARCH) {
-        if (process.env.ARCH === 'x64') {
-            return "x86";
-        }
-    }
-    // 否则从系统架构获取
     switch (process.arch) {
         case "x64":
             return "x86";

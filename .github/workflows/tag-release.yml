@@ -130,7 +130,7 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-            name: windows-artifact
+            name: windows-${{ matrix.arch }}-artifact
             path: |
                 dist-release/*.exe
                 dist/*.exe
@@ -139,7 +139,7 @@ jobs:
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
-            name: macos-artifact
+            name: macos-${{ matrix.arch }}-artifact
             path: |
                 dist-release/*.dmg
                 dist/*.dmg
