@@ -112,15 +112,15 @@ const onEditName = async (device: DeviceRecord, name: string) => {
             <div class="flex-shrink-0 flex flex-col p-0 gap-1 w-9">
                 <DeviceActionMirror ref="actionMirror" :device="record"/>
                 <DeviceActionApp :device="record"/>
-                <DeviceActionScreenshot :device="record"/>
-                <DeviceActionRecord :device="record"/>
-                <a-tooltip :content="$t('device.fileManager')">
+                <!-- <DeviceActionScreenshot :device="record"/>
+                <DeviceActionRecord :device="record"/> -->
+                <!-- <a-tooltip :content="$t('device.fileManager')">
                     <a-button class="ml-1" @click="emit('file-manager')">
                         <template #icon>
                             <icon-folder class="text-gray-400"/>
                         </template>
                     </a-button>
-                </a-tooltip>
+                </a-tooltip> -->
                 <a-tooltip :content="$t('device.fileUpload')">
                     <a-button class="ml-1" @click="emit('file-upload', props.record)">
                         <template #icon>
@@ -145,10 +145,10 @@ const onEditName = async (device: DeviceRecord, name: string) => {
                         />
                         <DeviceActionWifiOn v-if="record.type === EnumDeviceType.USB" :device="record"/>
                         <DeviceActionWifiOff v-if="record.type === EnumDeviceType.WIFI" :device="record"/>
-                        <DeviceActionMirrorCamera :device="record"/>
-                        <DeviceActionMirrorOTG v-if="record.type === EnumDeviceType.USB" :device="record"/>
-                        <DeviceForwardPort v-if="record.type === EnumDeviceType.WIFI && !record.runtime?.forwardPort" :device="record"/>
-                        <DeviceRemoveForwardPort v-if="record.type === EnumDeviceType.WIFI && record.runtime?.forwardPort" :device="record"/>
+                        <!-- <DeviceActionMirrorCamera :device="record"/>
+                        <DeviceActionMirrorOTG v-if="record.type === EnumDeviceType.USB" :device="record"/> -->
+                        <!-- <DeviceForwardPort v-if="record.type === EnumDeviceType.WIFI && !record.runtime?.forwardPort" :device="record"/>
+                        <DeviceRemoveForwardPort v-if="record.type === EnumDeviceType.WIFI && record.runtime?.forwardPort" :device="record"/> -->
                         <a-doption @click="emit('adbShell')">
                             {{ $t("device.commandLine") }}
                         </a-doption>

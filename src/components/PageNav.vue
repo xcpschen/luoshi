@@ -30,17 +30,17 @@ const userTip = computed(() => {
 });
 
 const doUser = async () => {
-    if (!setting.basic.userEnable) {
-        return;
-    }
-    await window.$mapi.user.open();
+    // if (!setting.basic.userEnable) {
+    //     return;
+    // }
+    // await window.$mapi.user.open();
 };
 </script>
 
 <template>
     <div class="flex flex-col h-full border-r border-gray-200 dark:border-gray-800">
         <div class="py-4 px-3" :class="setting.basic.userEnable ? 'cursor-pointer' : ''" @click="doUser">
-            <a-tooltip v-if="setting.basic.userEnable" :content="userTip as string" position="right" mini>
+            <!-- <a-tooltip v-if="setting.basic.userEnable" :content="userTip as string" position="right" mini>
                 <img
                     v-if="!user.isInit || !user.user.id"
                     class="rounded-full border border-solid border-gray-200"
@@ -63,7 +63,7 @@ const doUser = async () => {
                     :src="user.user.avatar as string"
                     class="rounded-full border border-solid border-gray-200"
                 />
-            </div>
+            </div> -->
         </div>
         <div class="flex-grow mt-2">
             <a

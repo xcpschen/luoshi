@@ -23,12 +23,12 @@ onLocaleChange(newLocale => {
 });
 
 onMounted(() => {
-    setTimeout(async () => {
-        const checkAtLaunch = await window.$mapi.config.get("updaterCheckAtLaunch", "yes");
-        if ("yes" !== checkAtLaunch) {
-            return;
-        }
-        doCheckForUpdate().then();
-    }, 6000);
+    // setTimeout(async () => {
+    //     const checkAtLaunch = await window.$mapi.config.get("updaterCheckAtLaunch", "yes");
+    //     if ("yes" !== checkAtLaunch) {
+    //         return;
+    //     }
+    //     doCheckForUpdate().then();
+    // }, 6000);
 });
 </script>

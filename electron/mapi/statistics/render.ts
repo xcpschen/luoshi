@@ -43,11 +43,11 @@ const tickSendAsync = () => {
 };
 
 const tick = (name: string, data: any) => {
-    tickDataList.push({
-        name,
-        data,
-    });
-    tickSendAsync();
+    // tickDataList.push({
+    //     name,
+    //     data,
+    // });
+    // tickSendAsync();
 };
 
 export default {

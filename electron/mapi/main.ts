@@ -32,7 +32,7 @@ const $mapi = {
 
 export const MAPI = {
     async init() {
-        await $mapi.user.init();
+        // await $mapi.user.init();
         await $mapi.db.init();
         await $mapi.event.init();
         await $mapi.serve.start();

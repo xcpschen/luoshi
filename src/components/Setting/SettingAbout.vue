@@ -15,13 +15,13 @@ const doOpenLog = async () => {
 
 <template>
     <div class="flex mb-3">
-        <div class="w-20">{{ t("common.version") }}</div>
+        <!-- <div class="w-20">{{ t("common.version") }}</div>
         <div class="flex-grow">
             <div>v{{ AppConfig.version }} Build {{ setting.buildInfo.buildId }}</div>
             <div class="pt-2">
                 <UpdaterButton />
             </div>
-        </div>
+        </div> -->
     </div>
     <div class="flex mb-3 items-center">
         <div class="w-20">{{ t("common.officialSite") }}</div>

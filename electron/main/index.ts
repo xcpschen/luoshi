@@ -93,19 +93,19 @@ async function createWindow() {
     } else if (process.platform === "darwin") {
         icon = icnsLogoPath;
     }
-    if (hasSplashWindow) {
-        AppRuntime.splashWindow = new BrowserWindow({
-            title: AppConfig.title,
-            width: 600,
-            height: 350,
-            transparent: false,
-            frame: false,
-            alwaysOnTop: true,
-            hasShadow: true,
-            skipTaskbar: true,
-        });
-        rendererLoadPath(AppRuntime.splashWindow, "splash.html");
-    }
+    // if (hasSplashWindow) {
+        // AppRuntime.splashWindow = new BrowserWindow({
+        //     title: AppConfig.title,
+        //     width: 600,
+        //     height: 350,
+        //     transparent: false,
+        //     frame: false,
+        //     alwaysOnTop: true,
+        //     hasShadow: true,
+        //     skipTaskbar: true,
+        // });
+        // rendererLoadPath(AppRuntime.splashWindow, "splash.html");
+    // }
     AppRuntime.mainWindow = new BrowserWindow({
         show: !hasSplashWindow,
         title: AppConfig.title,
