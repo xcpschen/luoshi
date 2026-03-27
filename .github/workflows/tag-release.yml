@@ -15,15 +15,15 @@ jobs:
     strategy:
       fail-fast: false 
       matrix:
-        os: [macos-latest, windows-latest]
-        arch: [arm64, amd64]
-        # include:
-        #     - os: ubuntu-latest
-        #       arch: [arm64, amd64]
-        #     - os: macos-latest
-        #       arch: [arm64, amd64]
-        #     - os: windows-latest
-        #       arch: [arm64, amd64]
+        # os: [macos-latest, windows-latest]
+        # arch: [arm64, amd64]
+        include:
+            # - os: ubuntu-latest
+            #   arch: [arm64, amd64]
+            - os: macos-latest
+              arch: [arm64, amd64]
+            - os: windows-latest
+              arch: [amd64]
 
     steps:
       - name: Checkout Code
@@ -101,22 +101,7 @@ jobs:
             APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
             APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
             APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      - name: Build Release Files ( arm64 windows )
-        if: matrix.arch == 'arm64' && runner.os == 'Windows'
-        run: |
-            npm run build:win_arm
-        env:
-            npm_config_target_arch: ${{ matrix.arch }}
-            npm_config_runtime: electron
-            npm_config_arch: ${{ matrix.arch }}
-            TARGET_ARCH: ${{ matrix.arch }}
-            ARCH: "arm64"
-            DEBUG: "electron-notarize:*"
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            APPLE_ID: ${{ secrets.APPLE_ID }}
-            APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-            APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-            APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      
       - name: Build Release Files ( amd64 macOS )
         if: matrix.arch == 'amd64' && runner.os == 'macOS'
         run: |

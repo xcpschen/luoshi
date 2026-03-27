@@ -85,7 +85,11 @@
         "notarize": false,
         "darkModeSupport": true,
         "hardenedRuntime": true,
-        "identity": ""
+        "identity": "",
+        "publish": {
+            "provider": "github",
+            "updaterCacheDirName": "linkandroid-updater-${arch}" 
+        }
     },
     "linux": {
         "icon": "logo.icns",
