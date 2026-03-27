@@ -1,4 +1,5 @@
 const common = require("./common.cjs");
+const path = require('path');
 
 console.log("BuildOptimize", {
     name: common.platformName(),
@@ -33,6 +34,10 @@ exports.default = async function (context) {
         destDir = common.pathResolve(context.appOutDir, "resources", "extra", name);
     }
 
+    if (platformName ==="win"){
+        srcDir = path.win32.normalize(srcDir); 
+    }
+
     console.log("BuildOptimize.copy", {
         platformName,
         platformArch,
@@ -42,6 +47,7 @@ exports.default = async function (context) {
 
     if (srcDir && common.exists(srcDir)) {
         console.log(`Copying from ${srcDir} to ${destDir}`);
+        
         common.copy(srcDir, destDir, true);
         console.log(`Copy completed`);
     } else {
