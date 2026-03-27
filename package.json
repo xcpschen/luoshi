@@ -1,5 +1,5 @@
 {
-    "name": "linkandroid",
+    "name": "easylinkandroid",
     "version": "1.0.0",
     "main": "dist-electron/main/index.js",
     "description": "Link android to PC easily",
@@ -21,8 +21,8 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "dev:mac": "pkill -f linkandroid; vite",
-        "dev:mac:pre": "export ELECTRON_ENV_PROD=1 && pkill -f linkandroid; vite",
+        "dev:mac": "pkill -f easylinkandroid; vite",
+        "dev:mac:pre": "export ELECTRON_ENV_PROD=1 && pkill -f easylinkandroid; vite",
         "dev:win": "chcp 65001 && vite",
         "dev:win:pre": "chcp 65001 && set ELECTRON_ENV_PROD=1 && vite",
         "dev:debug": "vite --debug",
