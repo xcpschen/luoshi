@@ -16,7 +16,7 @@
         "dist-electron"
     ],
     "win": {
-        "icns": "electron/resources/build/logo.ico",
+        "icon": "electron/resources/build/logo.ico",
         "target": [
             {
                 "target": "nsis",
