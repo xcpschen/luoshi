@@ -85,11 +85,22 @@ jobs:
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: bash ./scripts/init.sh
 
-      - name: Build Release Files
-        run: npm run build -- --${{ matrix.arch }}
+      - name: Build Release Files ( amd64 )
+        if: matrix.arch == 'amd64'
+        run: npm run build --x64
         env:
-            npm_config_arch: ${{ matrix.arch }} 
-            TARGET_ARCH: ${{ matrix.arch }}
+            ARCH: "x64"
+            DEBUG: "electron-notarize:*"
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            APPLE_ID: ${{ secrets.APPLE_ID }}
+            APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+            APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+            APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - name: Build Release Files ( arm64 )
+        if: matrix.arch == 'arm64'
+        run: npm run build --arm64
+        env:
+            ARCH: "arm64"
             DEBUG: "electron-notarize:*"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -135,7 +146,6 @@ jobs:
             name: windows-${{ matrix.arch }}-artifact
             path: |
                 dist-release/*.exe
-                dist/*.exe
   #
       - name: Upload Artifact Macos
         if: runner.os == 'macOS'
@@ -144,7 +154,6 @@ jobs:
             name: macos-${{ matrix.arch }}-artifact
             path: |
                 dist-release/*.dmg
-                dist/*.dmg
 
       - name: Upload Artifact Linux
         if: runner.os == 'Linux'
@@ -153,7 +162,6 @@ jobs:
             name: linux-${{ matrix.arch }}-artifact
             path: |
                 dist-release/*
-                dist/*
 
 
       - name: Release Assets
@@ -161,12 +169,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
             files: |
-                dist/*.exe
-                dist/*.dmg
-                dist/*.deb
-                dist/*.AppImage
-                dist/*.snap
-                dist/*.yml
                 dist-release/*.exe
                 dist-release/*.dmg
                 dist-release/*.deb

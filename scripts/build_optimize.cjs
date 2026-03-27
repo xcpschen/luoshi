@@ -1,9 +1,9 @@
 const common = require("./common.cjs");
 
-// console.log("BuildOptimize", {
-//     name: common.platformName(),
-//     arch: common.platformArch(),
-// });
+console.log("BuildOptimize", {
+    name: common.platformName(),
+    arch: common.platformArch(),
+});
 
 exports.default = async function (context) {
     console.log("BuildOptimize.output", {
@@ -11,9 +11,9 @@ exports.default = async function (context) {
         root: context.appOutDir,
     });
     // copy extra electron/resources/extra/[name]-[arch] to extra
-    // const platformName = common.platformName();
-    // const platformArch = common.platformArch();
-    const {platformName,platformArch} = common.getPlatformAndArch(context);
+    const platformName = common.platformName();
+    const platformArch = common.platformArch();
+    // const {platformName,platformArch} = common.getPlatformAndArch(context);
     const name = platformName + "-" + platformArch;
 
     const srcDir = `electron/resources/extra/${name}`;

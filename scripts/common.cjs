@@ -62,7 +62,8 @@ const platformName = () => {
 }
 
 const platformArch = () => {
-    switch (process.arch) {
+    const arch = process.env.ARCH || process.arch;
+    switch (arch) {
         case "x64":
             return "x86";
         case "arm64":
@@ -150,8 +151,8 @@ async function calcSha256() {
 module.exports = {
     dir,
     distReleaseDir,
-    // platformName,
-    // platformArch,
+    platformName,
+    platformArch,
     getPlatformAndArch,
     listFiles,
     copy,
