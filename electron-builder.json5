@@ -21,8 +21,7 @@
             {
                 "target": "nsis",
                 "arch": [
-                    "x64",
-                    "arm64"
+                    "${arch}"
                 ]
             },
         ],
@@ -66,8 +65,7 @@
             {
                 "target": "dmg",
                 "arch": [
-                    "x64",
-                    "arm64"
+                    "${arch}"
                 ]
             }
         ],
