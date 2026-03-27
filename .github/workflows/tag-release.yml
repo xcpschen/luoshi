@@ -86,15 +86,15 @@ jobs:
         run: bash ./scripts/init.sh
 
       - name: Build Release Files ( amd64 windows )
-        if: matrix.arch == 'amd64' && runner.os == 'Windows'
+        if: runner.arch == 'amd64' && runner.os == 'Windows'
         run: |
             npm run build:win_x86
         env:
             ARCH: "x64"
-            npm_config_target_arch: ${{ matrix.arch }}
+            npm_config_target_arch: ${{ runner.arch }}
             npm_config_runtime: electron
-            npm_config_arch: ${{ matrix.arch }}
-            TARGET_ARCH: ${{ matrix.arch }}
+            npm_config_arch: ${{ runner.arch }}
+            TARGET_ARCH: ${{ runner.arch }}
             DEBUG: "electron-notarize:*"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -103,15 +103,15 @@ jobs:
             APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       
       - name: Build Release Files ( amd64 macOS )
-        if: matrix.arch == 'amd64' && runner.os == 'macOS'
+        if: runner.arch == 'amd64' && runner.os == 'macOS'
         run: |
             npm run build:mac_x86
         env:
             ARCH: "x64"
-            npm_config_target_arch: ${{ matrix.arch }}
+            npm_config_target_arch: ${{ runner.arch }}
             npm_config_runtime: electron
-            npm_config_arch: ${{ matrix.arch }}
-            TARGET_ARCH: ${{ matrix.arch }}
+            npm_config_arch: ${{ runner.arch }}
+            TARGET_ARCH: ${{ runner.arch }}
             DEBUG: "electron-notarize:*"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -120,14 +120,14 @@ jobs:
             APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         
       - name: Build Release Files ( arm64 macOS )
-        if: matrix.arch == 'arm64' && runner.os == 'macOS'
+        if: runner.arch == 'arm64' && runner.os == 'macOS'
         run: |
             npm run build:mac_arm
         env:
-            npm_config_target_arch: ${{ matrix.arch }}
+            npm_config_target_arch: ${{ runner.arch }}
             npm_config_runtime: electron
-            npm_config_arch: ${{ matrix.arch }}
-            TARGET_ARCH: ${{ matrix.arch }}
+            npm_config_arch: ${{ runner.arch }}
+            TARGET_ARCH: ${{ runner.arch }}
             ARCH: "arm64"
             DEBUG: "electron-notarize:*"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -149,7 +149,7 @@ jobs:
         shell: pwsh
         run: |
             $randomNumber = Get-Random -Minimum 10000 -Maximum 99999
-            $DIST_FILE_NAME = "Windows-${{ matrix.arch }}-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
+            $DIST_FILE_NAME = "Windows-${{ runner.arch }}-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
             Write-Host "::add-mask::$DIST_FILE_NAME"
             echo "DIST_FILE_NAME=$DIST_FILE_NAME" >> $env:GITHUB_ENV
 
@@ -172,7 +172,7 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-            name: windows-${{ matrix.arch }}-artifact
+            name: windows-${{ runner.arch }}-artifact
             path: |
                 dist-release/*.exe
   #
@@ -180,7 +180,7 @@ jobs:
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
-            name: macos-${{ matrix.arch }}-artifact
+            name: macos-${{ runner.arch }}-artifact
             path: |
                 dist-release/*.dmg
 
@@ -188,7 +188,7 @@ jobs:
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
-            name: linux-${{ matrix.arch }}-artifact
+            name: linux-${{ runner.arch }}-artifact
             path: |
                 dist-release/*
 
