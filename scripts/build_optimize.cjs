@@ -17,7 +17,12 @@ exports.default = async function (context) {
     // const {platformName,platformArch} = common.getPlatformAndArch(context);
     const name = platformName + "-" + platformArch;
 
-    const srcDir = `electron/resources/extra/${name}`;
+    
+    if (platformName ==="win"){
+        const srcDir = path.win32.normalize(srcDir); 
+    }else{
+        const srcDir = `electron/resources/extra/${name}`;
+    }
     let destDir = null;
     if (platformName === 'osx') {
         destDir = common.pathResolve(
@@ -34,9 +39,7 @@ exports.default = async function (context) {
         destDir = common.pathResolve(context.appOutDir, "resources", "extra", name);
     }
 
-    if (platformName ==="win"){
-        srcDir = path.win32.normalize(srcDir); 
-    }
+    
 
     console.log("BuildOptimize.copy", {
         platformName,
