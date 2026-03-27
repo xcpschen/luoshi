@@ -16,7 +16,7 @@
         "dist-electron"
     ],
     "win": {
-        "icon": "electron/resources/build/logo.ico",
+        "icon": "logo.ico",
         "target": [
             {
                 "target": "nsis",
@@ -61,7 +61,7 @@
         ]
     },
     "mac": {
-        "icon": "electron/resources/build/logo.icns",
+        "icon": "logo.icns",
         "target": [
             {
                 "target": "dmg",

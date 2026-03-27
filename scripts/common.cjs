@@ -25,6 +25,26 @@ function calcSha256File(filePath) {
     });
 }
 
+const getPlatformAndArch = (context) => {
+    const targetPlatform = context.electronPlatformName; // 'darwin', 'win32', 'linux'
+    const targetArch = context.arch; // 这里的 arch 才是 0(x64), 1(ia32), 3(arm64) 等枚举或字符串
+
+    // 转换函数建议修改为：
+    const getPlatformName = (p) => {
+        if (p === 'darwin') return 'osx';
+        if (p === 'win32') return 'win';
+        return 'linux';
+    };
+
+    const getArchName = (a) => {
+        // electron-builder 传入的 arch 可能是数字枚举，也可能是字符串
+        // 建议打印一下 context.arch 确认值
+        const archStr = (typeof a === 'number') ? (a === 3 ? 'arm64' : 'x86') : a;
+        return archStr === 'x64' ? 'x86' : archStr;
+    };
+
+    return getPlatformName(targetPlatform),getArchName(targetArch);
+}
 
 const platformName = () => {
     switch (process.platform) {
@@ -127,8 +147,9 @@ async function calcSha256() {
 module.exports = {
     dir,
     distReleaseDir,
-    platformName,
-    platformArch,
+    // platformName,
+    // platformArch,
+    getPlatformAndArch,
     listFiles,
     copy,
     pathResolve,
