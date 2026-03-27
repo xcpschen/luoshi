@@ -17,11 +17,10 @@ exports.default = async function (context) {
     // const {platformName,platformArch} = common.getPlatformAndArch(context);
     const name = platformName + "-" + platformArch;
 
-    const rawSrcDir = `electron/resources/extra/${name}`;
+    let srcDir = `electron/resources/extra/${name}`;
     if (platformName ==="win"){
-        const srcDir = path.win32.normalize(rawSrcDir); 
-    }else{
-        const srcDir = rawSrcDir;
+        const rawSrcDir = `electron/resources/extra/${name}`;
+        srcDir = path.win32.normalize(rawSrcDir); 
     }
     let destDir = null;
     if (platformName === 'osx') {
