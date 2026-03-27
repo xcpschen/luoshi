@@ -87,9 +87,13 @@ jobs:
 
       - name: Build Release Files ( amd64 )
         if: matrix.arch == 'amd64'
-        run: npm run build --x64
+        run: |
+            npm rebuild better-sqlite3 --arch=x64
+            npm run build --x64
         env:
             ARCH: "x64"
+            npm_config_target_arch: ${{ matrix.arch }}
+            npm_config_runtime: electron
             npm_config_arch: ${{ matrix.arch }}
             TARGET_ARCH: ${{ matrix.arch }}
             DEBUG: "electron-notarize:*"
@@ -100,8 +104,12 @@ jobs:
             APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       - name: Build Release Files ( arm64 )
         if: matrix.arch == 'arm64'
-        run: npm run build --arm64
+        run: |
+            npm rebuild better-sqlite3 --arch=arm64
+            npm run build --arm64
         env:
+            npm_config_target_arch: ${{ matrix.arch }}
+            npm_config_runtime: electron
             npm_config_arch: ${{ matrix.arch }}
             TARGET_ARCH: ${{ matrix.arch }}
             ARCH: "arm64"
