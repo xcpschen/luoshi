@@ -26,7 +26,7 @@
         "dev:win": "chcp 65001 && vite",
         "dev:win:pre": "chcp 65001 && set ELECTRON_ENV_PROD=1 && vite",
         "dev:debug": "vite --debug",
-        "build": "vite build && electron-builder",
+        "build": "vite build && electron-builder --config electron-builder.json5",
         "build:win": "vite build && electron-builder --win",
         "build:mac": "vite build && electron-builder --mac",
         "build:mac-arm": "vite build && electron-builder --mac --arm64",
