@@ -86,8 +86,10 @@ jobs:
         run: bash ./scripts/init.sh
 
       - name: Build Release Files
-        run: npm run build
+        run: npm run build -- --${{ matrix.arch }}
         env:
+            npm_config_arch: ${{ matrix.arch }} 
+            TARGET_ARCH: ${{ matrix.arch }}
             DEBUG: "electron-notarize:*"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             APPLE_ID: ${{ secrets.APPLE_ID }}
