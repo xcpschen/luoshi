@@ -85,11 +85,10 @@ jobs:
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: bash ./scripts/init.sh
 
-      - name: Build Release Files ( amd64 )
-        if: matrix.arch == 'amd64'
+      - name: Build Release Files ( amd64 windows )
+        if: matrix.arch == 'amd64' && runner.os == 'Windows'
         run: |
-            npm rebuild better-sqlite3 --arch=x64
-            npm run build --x64
+            npm run build:win_x86
         env:
             ARCH: "x64"
             npm_config_target_arch: ${{ matrix.arch }}
@@ -102,11 +101,10 @@ jobs:
             APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
             APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
             APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      - name: Build Release Files ( arm64 )
-        if: matrix.arch == 'arm64'
+      - name: Build Release Files ( arm64 windows )
+        if: matrix.arch == 'arm64' && runner.os == 'Windows'
         run: |
-            npm rebuild better-sqlite3 --arch=arm64
-            npm run build --arm64
+            npm run build:win_arm
         env:
             npm_config_target_arch: ${{ matrix.arch }}
             npm_config_runtime: electron
@@ -119,6 +117,40 @@ jobs:
             APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
             APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
             APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - name: Build Release Files ( amd64 macOS )
+        if: matrix.arch == 'amd64' && runner.os == 'macOS'
+        run: |
+            npm run build:mac_x86
+        env:
+            ARCH: "x64"
+            npm_config_target_arch: ${{ matrix.arch }}
+            npm_config_runtime: electron
+            npm_config_arch: ${{ matrix.arch }}
+            TARGET_ARCH: ${{ matrix.arch }}
+            DEBUG: "electron-notarize:*"
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            APPLE_ID: ${{ secrets.APPLE_ID }}
+            APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+            APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+            APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        
+      - name: Build Release Files ( arm64 macOS )
+        if: matrix.arch == 'arm64' && runner.os == 'macOS'
+        run: |
+            npm run build:mac_arm
+        env:
+            npm_config_target_arch: ${{ matrix.arch }}
+            npm_config_runtime: electron
+            npm_config_arch: ${{ matrix.arch }}
+            TARGET_ARCH: ${{ matrix.arch }}
+            ARCH: "arm64"
+            DEBUG: "electron-notarize:*"
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            APPLE_ID: ${{ secrets.APPLE_ID }}
+            APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+            APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+            APPLE_TEAM_ID: ${{ secrets.APPL
+        
 
       - name: Set Build Name ( Linux / macOS )
         if: runner.os == 'Linux' || runner.os == 'macOS'

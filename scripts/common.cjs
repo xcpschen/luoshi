@@ -1,5 +1,5 @@
 const fs = require("node:fs");
-const {resolve, join} = require("node:path");
+const {resolve, join,normalize} = require("node:path");
 const crypto = require("node:crypto");
 
 const dir = (p) => {
@@ -98,24 +98,49 @@ const listFiles = (dir, recursive, regex) => {
 }
 
 const copy = (src, dest, print) => {
-    print = print || false
-    if (!fs.existsSync(src)) {
-        console.warn(`Source path does not exist: ${src}`);
-        return;
-    }
-    if (fs.statSync(src).isDirectory()) {
-        fs.mkdirSync(dest, {recursive: true});
-        const files = fs.readdirSync(src);
-        for (const file of files) {
-            copy(join(src, file), join(dest, file));
+    // 自动格式化路径，确保 Windows 反斜杠兼容性
+    src = normalize(src);
+    dest = normalize(dest);
+
+    try {
+        if (!fs.existsSync(src)) {
+            console.warn(`[Copy] 源路径不存在: ${src}`);
+            return false;
         }
-    } else {
-        if (print) {
-            console.log(`Copying file from ${src} to ${dest}`);
+
+        const stats = fs.statSync(src);
+
+        if (stats.isDirectory()) {
+            // 如果目标目录不存在则创建
+            if (!fs.existsSync(dest)) {
+                fs.mkdirSync(dest, { recursive: true });
+            }
+            
+            const files = fs.readdirSync(src);
+            // 递归调用，确保所有子文件都成功
+            return files.every(file => copy(join(src, file), join(dest, file), print));
+            
+        } else {
+            if (print) {
+                console.log(`[Copy] 正在复制: ${src} -> ${dest}`);
+            }
+            
+            // 确保目标文件的父目录存在
+            const destDir = join(dest, '..');
+            if (!fs.existsSync(destDir)) {
+                fs.mkdirSync(destDir, { recursive: true });
+            }
+
+            fs.copyFileSync(src, dest);
+            return true;
         }
-        fs.copyFileSync(src, dest);
+    } catch (err) {
+        console.error(`[Copy] 出错: 从 ${src} 到 ${dest}`, err.message);
+        return false;
     }
 }
+
+
 
 const pathResolve = (...args)=>{
     return resolve(...args)
