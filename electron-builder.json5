@@ -19,10 +19,7 @@
         "icon": "logo.ico",
         "target": [
             {
-                "target": "nsis",
-                "arch": [
-                    "${arch}"
-                ]
+                "target": "nsis"
             },
         ],
         "artifactName": "${productName}-${version}-win-${arch}.${ext}",
@@ -63,10 +60,7 @@
         "icon": "logo.icns",
         "target": [
             {
-                "target": "dmg",
-                "arch": [
-                    "${arch}"
-                ]
+                "target": "dmg"
             }
         ],
         "artifactName": "${productName}-${version}-mac-${arch}.${ext}",
