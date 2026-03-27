@@ -15,15 +15,19 @@ jobs:
     strategy:
       fail-fast: false 
       matrix:
-        # os: [macos-latest, windows-latest]
-        # arch: [arm64, amd64]
-        include:
-            # - os: ubuntu-latest
-            #   arch: [arm64, amd64]
-            - os: macos-latest
-              arch: [arm64, amd64]
-            - os: windows-latest
-              arch: [amd64]
+        os: [macos-latest, windows-latest]
+        arch: [arm64, amd64]
+        exclude:
+          # 排除掉 Windows + arm64 的组合
+          - os: windows-latest
+            arch: arm64
+        # include:
+        #     - os: ubuntu-latest
+        #       arch: [arm64, amd64]
+        #     - os: macos-latest
+        #       arch: [arm64, amd64]
+        #     - os: windows-latest
+        #       arch: [arm64, amd64]
 
     steps:
       - name: Checkout Code
@@ -86,15 +90,15 @@ jobs:
         run: bash ./scripts/init.sh
 
       - name: Build Release Files ( amd64 windows )
-        if: runner.arch == 'amd64' && runner.os == 'Windows'
+        if: matrix.arch == 'amd64' && runner.os == 'Windows'
         run: |
             npm run build:win_x86
         env:
             ARCH: "x64"
-            npm_config_target_arch: ${{ runner.arch }}
+            npm_config_target_arch: ${{ matrix.arch }}
             npm_config_runtime: electron
-            npm_config_arch: ${{ runner.arch }}
-            TARGET_ARCH: ${{ runner.arch }}
+            npm_config_arch: ${{ matrix.arch }}
+            TARGET_ARCH: ${{ matrix.arch }}
             DEBUG: "electron-notarize:*"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -103,15 +107,15 @@ jobs:
             APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       
       - name: Build Release Files ( amd64 macOS )
-        if: runner.arch == 'amd64' && runner.os == 'macOS'
+        if: matrix.arch == 'amd64' && runner.os == 'macOS'
         run: |
             npm run build:mac_x86
         env:
             ARCH: "x64"
-            npm_config_target_arch: ${{ runner.arch }}
+            npm_config_target_arch: ${{ matrix.arch }}
             npm_config_runtime: electron
-            npm_config_arch: ${{ runner.arch }}
-            TARGET_ARCH: ${{ runner.arch }}
+            npm_config_arch: ${{ matrix.arch }}
+            TARGET_ARCH: ${{ matrix.arch }}
             DEBUG: "electron-notarize:*"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -120,14 +124,14 @@ jobs:
             APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         
       - name: Build Release Files ( arm64 macOS )
-        if: runner.arch == 'arm64' && runner.os == 'macOS'
+        if: matrix.arch == 'arm64' && runner.os == 'macOS'
         run: |
             npm run build:mac_arm
         env:
-            npm_config_target_arch: ${{ runner.arch }}
+            npm_config_target_arch: ${{ matrix.arch }}
             npm_config_runtime: electron
-            npm_config_arch: ${{ runner.arch }}
-            TARGET_ARCH: ${{ runner.arch }}
+            npm_config_arch: ${{ matrix.arch }}
+            TARGET_ARCH: ${{ matrix.arch }}
             ARCH: "arm64"
             DEBUG: "electron-notarize:*"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -149,7 +153,7 @@ jobs:
         shell: pwsh
         run: |
             $randomNumber = Get-Random -Minimum 10000 -Maximum 99999
-            $DIST_FILE_NAME = "Windows-${{ runner.arch }}-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
+            $DIST_FILE_NAME = "Windows-${{ matrix.arch }}-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
             Write-Host "::add-mask::$DIST_FILE_NAME"
             echo "DIST_FILE_NAME=$DIST_FILE_NAME" >> $env:GITHUB_ENV
 
@@ -172,7 +176,7 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-            name: windows-${{ runner.arch }}-artifact
+            name: windows-${{ matrix.arch }}-artifact
             path: |
                 dist-release/*.exe
   #
@@ -180,7 +184,7 @@ jobs:
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
-            name: macos-${{ runner.arch }}-artifact
+            name: macos-${{ matrix.arch }}-artifact
             path: |
                 dist-release/*.dmg
 
@@ -188,7 +192,7 @@ jobs:
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
-            name: linux-${{ runner.arch }}-artifact
+            name: linux-${{ matrix.arch }}-artifact
             path: |
                 dist-release/*
 
@@ -203,7 +207,8 @@ jobs:
                 dist-release/*.deb
                 dist-release/*.AppImage
                 dist-release/*.snap
-                dist-release/*.yml
+                dist-release/sha256-osx-arm64.yml
+                dist-release/sha256-osx-amd64.yml
             fail_on_unmatched_files: false
             generate_release_notes: true
         env:
