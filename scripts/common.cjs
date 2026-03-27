@@ -43,7 +43,10 @@ const getPlatformAndArch = (context) => {
         return archStr === 'x64' ? 'x86' : archStr;
     };
 
-    return getPlatformName(targetPlatform),getArchName(targetArch);
+    return {
+        platformName: getPlatformName(targetPlatform),
+        platformArch: getArchName(targetArch),
+    }
 }
 
 const platformName = () => {
