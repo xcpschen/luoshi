@@ -1,9 +1,9 @@
 const common = require("./common.cjs");
 
-console.log("BuildOptimize", {
-    name: common.platformName(),
-    arch: common.platformArch(),
-});
+// console.log("BuildOptimize", {
+//     name: common.platformName(),
+//     arch: common.platformArch(),
+// });
 
 exports.default = async function (context) {
     console.log("BuildOptimize.output", {
