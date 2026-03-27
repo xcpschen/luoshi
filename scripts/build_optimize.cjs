@@ -13,7 +13,7 @@ exports.default = async function (context) {
     // copy extra electron/resources/extra/[name]-[arch] to extra
     // const platformName = common.platformName();
     // const platformArch = common.platformArch();
-    const [platformName,platformArch] = common.getPlatformAndArch();
+    const [platformName,platformArch] = common.getPlatformAndArch(context);
     const name = platformName + "-" + platformArch;
 
     const srcDir = `electron/resources/extra/${name}`;
