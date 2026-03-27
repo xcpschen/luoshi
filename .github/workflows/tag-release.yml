@@ -90,6 +90,8 @@ jobs:
         run: npm run build --x64
         env:
             ARCH: "x64"
+            npm_config_arch: ${{ matrix.arch }}
+            TARGET_ARCH: ${{ matrix.arch }}
             DEBUG: "electron-notarize:*"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -100,6 +102,8 @@ jobs:
         if: matrix.arch == 'arm64'
         run: npm run build --arm64
         env:
+            npm_config_arch: ${{ matrix.arch }}
+            TARGET_ARCH: ${{ matrix.arch }}
             ARCH: "arm64"
             DEBUG: "electron-notarize:*"
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -120,7 +124,7 @@ jobs:
         shell: pwsh
         run: |
             $randomNumber = Get-Random -Minimum 10000 -Maximum 99999
-            $DIST_FILE_NAME = "Windows-X64-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
+            $DIST_FILE_NAME = "Windows-${{ matrix.arch }}-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
             Write-Host "::add-mask::$DIST_FILE_NAME"
             echo "DIST_FILE_NAME=$DIST_FILE_NAME" >> $env:GITHUB_ENV
 
