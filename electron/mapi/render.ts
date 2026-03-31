@@ -17,9 +17,10 @@ import misc from "./misc/render";
 import adb from "./adb/render";
 import scrcpy from "./scrcpy/render";
 import serve from "./serve/render";
+import clusterConfig from "./clusterConfig/render";
 
 export const MAPI = {
-    init(env: typeof AppEnv = null) {
+    init(env: typeof AppEnv | null = null) {
         if (!env) {
             // expose context
             exposeContext("$mapi", {
@@ -39,6 +40,7 @@ export const MAPI = {
                 adb,
                 scrcpy,
                 serve,
+                clusterConfig,
             });
             db.init();
             event.init();

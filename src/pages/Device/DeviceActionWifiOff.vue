@@ -29,6 +29,7 @@ const doWifiOff = async () => {
 
 <template>
     <a-doption @click="doWifiOff">
+        <icon-wifi class="mr-2"/>
         {{ $t("device.closeNetworkPort") }}
     </a-doption>
 </template>

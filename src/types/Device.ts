@@ -4,6 +4,10 @@ export enum EnumDeviceStatus {
     WAIT_CONNECTING = "waitConnecting",
     CONNECTED = "connected",
     DISCONNECTED = "disconnected",
+    PARTIAL = "partial",
+    OFFLINE = "offline",
+    ONLINE = "online",
+    DEVICE = "device",
 }
 
 export enum EnumDeviceType {

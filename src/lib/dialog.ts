@@ -12,6 +12,9 @@ export const Dialog = {
     tipError: (msg: string) => {
         Message.error(msg);
     },
+    tipWarning: (msg: string) => {
+        Message.warning(msg);
+    },
     confirm: (content: string, title: string | null = null): Promise<void> => {
         title = title || t("common.tip");
         return new Promise((resolve, reject) => {

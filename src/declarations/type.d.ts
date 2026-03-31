@@ -377,7 +377,7 @@ type DefsMapi = {
             stop: Function | null;
             devicePath: string;
         }>;
-        watch: (callback: (type: string, data: any) => void) => Promise<void>;
+        watch: (callback: (type: string, data: any) => void) => Promise<() => void>;
         fileList: (serial: string, filePath: string) => Promise<any>;
         filePush: (
             serial: string,
@@ -459,6 +459,16 @@ type DefsMapi = {
         stop: () => Promise<void>;
         getPort: () => Promise<number>;
         getAddress: () => Promise<string>;
+    };
+    clusterConfig: {
+        get: () => Promise<import("../types/ClusterConfig").ClusterConfig>;
+        save: (config: import("../types/ClusterConfig").ClusterConfig) => Promise<boolean>;
+        getStatus: () => Promise<import("../types/ClusterConfig").ClusterStatus>;
+        addNode: (node: import("../types/ClusterConfig").ServerConfig) => Promise<boolean>;
+        updateNode: (node: import("../types/ClusterConfig").ServerConfig) => Promise<boolean>;
+        deleteNode: (nodeId: string) => Promise<boolean>;
+        listNodes: () => Promise<import("../types/ClusterConfig").ServerConfig[]>;
+        testNode: (node: import("../types/ClusterConfig").ServerConfig) => Promise<{ success: boolean; message: string }>;
     };
 };
 

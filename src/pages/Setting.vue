@@ -5,6 +5,7 @@ import {TabContentScroller} from "../lib/ui";
 import SettingBasic from "../components/Setting/SettingBasic.vue";
 import SettingEnv from "../components/Setting/SettingEnv.vue";
 import SettingAbout from "../components/Setting/SettingAbout.vue";
+import ClusterSetting from "./Setting/ClusterSetting.vue";
 
 let tabContentScroller: TabContentScroller | null = null;
 const contentContainer = ref<HTMLElement | null>(null);
@@ -54,6 +55,12 @@ onBeforeUnmount(() => {
                     {{ t("page.setting.env") }}
                 </div>
             </div>
+            <div data-section="cluster" class="p-2 rounded-lg mb-4 cursor-pointer">
+                <div class="text-base">
+                    <icon-cluster />
+                    {{ t("setting.cluster.title") }}
+                </div>
+            </div>
             <!-- <div data-section="about" class="p-2 rounded-lg mb-4 cursor-pointer">
                 <div class="text-base">
                     <icon-user />
@@ -71,6 +78,13 @@ onBeforeUnmount(() => {
                     <div class="text-base font-bold mb-4">{{ t("page.setting.basic") }}</div>
                     <div>
                         <SettingBasic />
+                    </div>
+                </div>
+                <div class="border-b border-solid border-gray-200 dark:border-gray-800 my-6"></div>
+                <div data-section="cluster" class="scroll-mt-4">
+                    <div class="text-base font-bold mb-4">{{ t("setting.cluster.title") }}</div>
+                    <div>
+                        <ClusterSetting />
                     </div>
                 </div>
                 <div v-if="0" class="border-b border-solid border-gray-200 dark:border-gray-800 my-6"></div>

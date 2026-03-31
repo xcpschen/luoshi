@@ -76,15 +76,18 @@ for (const dir of ["logs", "storage"]) {
 
 AppEnv.isInit = true;
 
-MAPI.init();
-ConfigContextMenu.init();
-
-Log.info("Starting");
-Log.info("LaunchInfo", {
-    isPackaged,
-    userData: AppEnv.userData,
-    dataRoot: AppEnv.dataRoot,
-});
+(async () => {
+    await MAPI.init();
+    console.log('[Main] MAPI initialization complete');
+    ConfigContextMenu.init();
+    
+    Log.info("Starting");
+    Log.info("LaunchInfo", {
+        isPackaged,
+        userData: AppEnv.userData,
+        dataRoot: AppEnv.dataRoot,
+    });
+})();
 
 async function createWindow() {
     let icon = logoPath;

@@ -33,6 +33,7 @@ const doWifiOn = async () => {
 
 <template>
     <a-doption @click="doWifiOn">
+        <icon-wifi class="mr-2"/>
         {{ $t("device.addAsNetworkDevice") }}
     </a-doption>
 </template>

@@ -152,11 +152,91 @@ const init = async () => {
     try {
         dbConn = new sqlite3(dbPath);
         dbSuccess = true;
+        
+        // 禁用外键约束检查（避免与现有数据冲突）
+        dbConn.exec('PRAGMA foreign_keys = OFF');
+        
         await migrate();
+        
+        // 修复可能存在的有问题的表结构
+        await fixDatabaseTables();
+        
         Log.info("Database connected successfully");
     } catch (err) {
         Log.error("DBConnect SQLite database failed:", err.message);
         throw err;
+    }
+};
+
+// 修复数据库表结构
+const fixDatabaseTables = async () => {
+    if (!dbConn) return;
+    
+    try {
+        // 检查 server_status 表是否有外键约束
+        const tableInfo = dbConn.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='server_status'").get() as any;
+        if (tableInfo && tableInfo.sql && tableInfo.sql.includes('FOREIGN KEY')) {
+            Log.info('Fixing server_status table...');
+            
+            // 禁用外键
+            dbConn.exec('PRAGMA foreign_keys = OFF');
+            
+            // 备份数据
+            const statusData = dbConn.prepare('SELECT * FROM server_status').all();
+            const nodeData = dbConn.prepare('SELECT * FROM server_node').all();
+            
+            // 删除旧表
+            dbConn.exec('DROP TABLE IF EXISTS server_status');
+            dbConn.exec('DROP TABLE IF EXISTS server_node');
+            dbConn.exec('DROP TABLE IF EXISTS cluster_config');
+            
+            // 重新创建表（没有外键）
+            dbConn.exec(`
+                CREATE TABLE cluster_config (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    config_key VARCHAR(128) UNIQUE NOT NULL,
+                    config_value TEXT NOT NULL,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+            
+            dbConn.exec(`
+                CREATE TABLE server_node (
+                    id VARCHAR(64) PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    role VARCHAR(32) NOT NULL,
+                    host VARCHAR(128) NOT NULL,
+                    port INTEGER NOT NULL,
+                    enabled BOOLEAN DEFAULT 1,
+                    config_json TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+            
+            dbConn.exec(`
+                CREATE TABLE server_status (
+                    node_id VARCHAR(64) PRIMARY KEY,
+                    status VARCHAR(32) NOT NULL,
+                    last_seen DATETIME,
+                    response_time INTEGER,
+                    active_connections INTEGER,
+                    cpu_usage REAL,
+                    memory_usage REAL,
+                    gpu_usage REAL,
+                    error_message TEXT,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+            
+            // 创建索引
+            dbConn.exec('CREATE INDEX IF NOT EXISTS idx_server_node_role ON server_node(role)');
+            dbConn.exec('CREATE INDEX IF NOT EXISTS idx_server_status_status ON server_status(status)');
+            
+            Log.info('Database tables fixed successfully');
+        }
+    } catch (err) {
+        Log.error('Failed to fix database tables:', err.message);
     }
 };
 
@@ -187,6 +267,8 @@ export const DBMain = {
     select: db.select,
     update: db.update,
     delete: db.delete,
+    // 暴露数据库实例给其他模块使用
+    getInstance: () => dbConn,
 };
 
 export default DBMain;

@@ -16,6 +16,10 @@ const activeTab = computed(() => {
             return "home";
         case "/device":
             return "device";
+        case "/device-manage":
+            return "device-manage";
+        case "/automation":
+            return "automation";
         case "/script":
             return "script";
         case "/lib":
@@ -76,6 +80,28 @@ const doUser = async () => {
                     <icon-mobile class="text-xl"/>
                 </div>
                 <div class="text-sm">{{ $t("nav.device") }}</div>
+            </a>
+            <a
+                class="page-nav-item block text-center py-3"
+                :class="activeTab === 'device-manage' ? 'active' : ''"
+                @click="$router.push('/device-manage')"
+                href="javascript:;"
+            >
+                <div>
+                    <icon-apps class="text-xl"/>
+                </div>
+                <div class="text-sm">{{ $t("nav.deviceManage") }}</div>
+            </a>
+            <a
+                class="page-nav-item block text-center py-3"
+                :class="activeTab === 'automation' ? 'active' : ''"
+                @click="$router.push('/automation')"
+                href="javascript:;"
+            >
+                <div>
+                    <icon-robot class="text-xl"/>
+                </div>
+                <div class="text-sm">{{ $t("nav.automation") }}</div>
             </a>
             <!-- <a
                 class="page-nav-item block text-center py-3"

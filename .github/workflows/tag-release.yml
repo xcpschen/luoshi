@@ -207,8 +207,6 @@ jobs:
                 dist-release/*.deb
                 dist-release/*.AppImage
                 dist-release/*.snap
-                dist-release/sha256-osx-arm64.yml
-                dist-release/sha256-osx-amd64.yml
             fail_on_unmatched_files: false
             generate_release_notes: true
         env:

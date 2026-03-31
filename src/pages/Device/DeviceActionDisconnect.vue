@@ -32,8 +32,13 @@ const doDisconnect = async () => {
 
 <template>
     <a-doption @click="doDisconnect">
+        <icon-link class="mr-2 rotate-180"/>
         {{ $t("device.disconnect") }}
     </a-doption>
 </template>
 
-<style scoped></style>
+<style scoped>
+.rotate-180 {
+    transform: rotate(180deg);
+}
+</style>

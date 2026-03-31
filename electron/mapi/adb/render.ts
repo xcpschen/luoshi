@@ -293,9 +293,56 @@ const listApps = async (id: string) => {
 };
 
 const info = async (id: string) => {
-    const result = {};
-    // get android version : adb shell getprop ro.build.version.release
-    result["version"] = parseInt(await shell(id, "getprop ro.build.version.release"));
+    console.log(`[ADB.info] 开始获取设备 ${id} 的详细信息`);
+    const result: any = {};
+    try {
+        // 获取 Android 版本
+        console.log('[ADB.info] 执行命令：getprop ro.build.version.release');
+        result["version"] = (await shell(id, "getprop ro.build.version.release")).trim();
+        console.log('[ADB.info] version:', result["version"]);
+        
+        // 获取 SDK 版本
+        console.log('[ADB.info] 执行命令：getprop ro.build.version.sdk');
+        result["sdkVersion"] = (await shell(id, "getprop ro.build.version.sdk")).trim();
+        console.log('[ADB.info] sdkVersion:', result["sdkVersion"]);
+        
+        // 获取设备品牌 - 尝试多个属性
+        console.log('[ADB.info] 尝试获取设备品牌');
+        result["brand"] = (await shell(id, "getprop ro.product.brand")).trim();
+        if (!result["brand"]) {
+            result["brand"] = (await shell(id, "getprop ro.product.manufacturer")).trim();
+        }
+        if (!result["brand"]) {
+            result["brand"] = (await shell(id, "getprop persist.sys.manufacturer")).trim();
+        }
+        console.log('[ADB.info] brand:', result["brand"]);
+        
+        // 获取设备型号 - 尝试多个属性
+        console.log('[ADB.info] 尝试获取设备型号');
+        result["model"] = (await shell(id, "getprop ro.product.model")).trim();
+        if (!result["model"]) {
+            result["model"] = (await shell(id, "getprop ro.product.device")).trim();
+        }
+        if (!result["model"]) {
+            result["model"] = (await shell(id, "getprop ro.product.name")).trim();
+        }
+        console.log('[ADB.info] model:', result["model"]);
+        
+        // 获取设备制造商 - 尝试多个属性
+        console.log('[ADB.info] 尝试获取设备制造商');
+        result["manufacturer"] = (await shell(id, "getprop ro.product.manufacturer")).trim();
+        if (!result["manufacturer"]) {
+            result["manufacturer"] = (await shell(id, "getprop persist.sys.manufacturer")).trim();
+        }
+        if (!result["manufacturer"]) {
+            result["manufacturer"] = result["brand"]; // 使用品牌作为备用
+        }
+        console.log('[ADB.info] manufacturer:', result["manufacturer"]);
+        
+        console.log(`[ADB] 设备信息：${JSON.stringify(result)}`);
+    } catch (error) {
+        console.error('[ADB] 获取设备信息失败:', error);
+    }
     return result;
 };
 

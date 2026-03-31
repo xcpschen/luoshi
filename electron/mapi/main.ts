@@ -12,6 +12,7 @@ import misc from "./misc/main";
 import updater from "./updater/main";
 import serve from "./serve/main";
 import adb from "./adb/main";
+import clusterConfig from "./clusterConfig/main";
 
 const $mapi = {
     app,
@@ -28,14 +29,22 @@ const $mapi = {
     updater,
     serve,
     adb,
+    clusterConfig,
 };
 
 export const MAPI = {
     async init() {
+        console.log('[MAPI] Starting initialization...');
         // await $mapi.user.init();
         await $mapi.db.init();
+        console.log('[MAPI] Database initialized');
         await $mapi.event.init();
         await $mapi.serve.start();
+        console.log('[MAPI] Serve started');
+        // 传入数据库实例
+        const dbInstance = $mapi.db.getInstance();
+        await $mapi.clusterConfig.init(dbInstance);
+        console.log('[MAPI] ClusterConfig initialized');
     },
     ready() {
         $mapi.keys.ready();

@@ -32,6 +32,7 @@ const doConnect = async () => {
 
 <template>
     <a-doption @click="doConnect">
+        <icon-link class="mr-2"/>
         {{ $t("device.connect") }}
     </a-doption>
 </template>

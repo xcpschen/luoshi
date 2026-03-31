@@ -40,6 +40,8 @@ const wsReconnectDelay = 3000;
 
 const deviceControllers = new Map<string, any>();
 const deviceConnectErrorTimes = new Map<string, number>();
+// 保存 ADB watch 的关闭函数
+let stopWatchingAdb: (() => void) | null = null;
 
 const createDeviceStatus = (record: DeviceRecord): ComputedRef<EnumDeviceStatus> => {
     const id = record.id;
@@ -323,20 +325,71 @@ export const deviceStore = defineStore("device", {
             }, 2000);
         },
         async startWatch() {
-            await $mapi.adb.watch((type, data) => {
-                // console.log('watch', type, data)
-                this.refresh().then();
-            });
+            // 如果已有监听器，先关闭
+            if (stopWatchingAdb) {
+                stopWatchingAdb();
+                stopWatchingAdb = null;
+            }
+            
+            try {
+                console.log('[Device] 正在启动 ADB watch...');
+                // 启动 ADB 设备监听
+                const closeFn = await $mapi.adb.watch((type, data) => {
+                    console.log('[Device] ===== ADB watch 事件触发 =====');
+                    console.log('[Device] 事件类型:', type);
+                    console.log('[Device] 事件数据:', data);
+                    // 设备变化时刷新列表
+                    this.refresh().then(() => {
+                        console.log('[Device] 设备列表已刷新，当前记录数:', this.records.length);
+                    }).catch(err => {
+                        console.error('[Device] 刷新设备列表失败:', err);
+                    });
+                });
+                stopWatchingAdb = closeFn;
+                console.log('[Device] ADB watch 已启动成功');
+            } catch (error: any) {
+                console.error('[Device] 启动 ADB watch 失败:', error);
+                stopWatchingAdb = null;
+            }
+        },
+        /**
+         * 确保 ADB watch 已启动
+         * 用于页面切换后重新激活设备监听
+         */
+        async ensureWatch() {
+            if (!stopWatchingAdb) {
+                console.log('[Device] ADB watch 未启动，开始启动...');
+                await this.startWatch();
+            } else {
+                console.log('[Device] ADB watch 已在运行');
+            }
         },
         async connectedDevices(): Promise<DeviceRecord[]> {
             const res = await $mapi.adb.devices();
+            console.log('[Device] adb.devices() 结果:', res);
+            
             const data: DeviceRecord[] = [];
             for (const d of res || []) {
+                // 获取详细的设备信息
+                let deviceInfo: any = {};
+                try {
+                    console.log('[Device] 开始获取设备信息:', d.id);
+                    console.log('[Device] $mapi.adb.info:', $mapi.adb.info);
+                    
+                    deviceInfo = await $mapi.adb.info(d.id);
+                    console.log('[Device] 获取到的设备信息:', deviceInfo);
+                } catch (error) {
+                    console.error(`[Device] 获取设备 ${d.id} 信息失败:`, error);
+                }
+                
                 data.push({
                     id: d.id,
                     type: isIPWithPort(d.id) ? EnumDeviceType.WIFI : EnumDeviceType.USB,
-                    name: d.model ? d.model.split(":")[1] : d.id,
-                    raw: d,
+                    name: deviceInfo.model ? `${deviceInfo.brand || ''} ${deviceInfo.model}`.trim() : (d.model ? d.model.split(":")[1] : d.id),
+                    raw: {
+                        ...d,
+                        ...deviceInfo,  // 合并详细信息
+                    },
                     forwardPort: false,
                     status: createDeviceStatus(d),
                     runtime: getDeviceRuntime(d),
@@ -375,13 +428,18 @@ export const deviceStore = defineStore("device", {
             }
         },
         async refresh() {
+            console.log('[Device] ===== 开始刷新设备列表 =====');
             const connectedDevices = await this.connectedDevices();
+            console.log('[Device] 已连接的设备数:', connectedDevices.length);
+            
             let changed = false;
             await this.getForwardPorts();
+            
             // 将新设备加入到列表中
             for (const device of connectedDevices) {
                 let record = this.records.find(record => record.id === device.id);
                 if (!record) {
+                    console.log('[Device] 发现新设备:', device.id, device.name);
                     record = {
                         id: device.id,
                         type: device.type,
@@ -395,6 +453,8 @@ export const deviceStore = defineStore("device", {
                     };
                     this.records.unshift(record);
                     changed = true;
+                } else {
+                    console.log('[Device] 设备已存在:', device.id);
                 }
             }
             // 设置已连接的设备状态
