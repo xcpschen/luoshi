@@ -13,6 +13,7 @@ import BatchOperationToolbar from "./DeviceManage/BatchOperationToolbar.vue";
 import BatchUploadDialog from "./DeviceManage/BatchUploadDialog.vue";
 import BatchInstallDialog from "./DeviceManage/BatchInstallDialog.vue";
 import DeviceImportDialog from "./DeviceManage/DeviceImportDialog.vue";
+import MdnsScanDialog from "./DeviceManage/MdnsScanDialog.vue";
 import type { DeviceUnifiedRecord, DeviceConnection } from "../types/DeviceUnified";
 
 const deviceUnifiedStore = useDeviceUnifiedStore();
@@ -28,6 +29,7 @@ const filterConnectionType = ref<string>("all");
 const showBatchUploadDialog = ref(false);
 const showBatchInstallDialog = ref(false);
 const showImportDialog = ref(false);
+const showMdnsScanDialog = ref(false);
 const importDialog = ref<InstanceType<typeof DeviceImportDialog> | null>(null);
 
 const filterRecords = computed(() => {
@@ -86,6 +88,16 @@ const handleBatchUninstall = () => {
     Dialog.confirm(t("batchOperation.uninstallConfirm")).then(() => {
         Dialog.tipSuccess(t("batchOperation.uninstallSuccess"));
     });
+};
+
+// 导入网络设备
+const handleImportNetworkDevice = () => {
+    showImportDialog.value = true;
+};
+
+// 扫描 mDNS
+const handleScanMdns = () => {
+    showMdnsScanDialog.value = true;
 };
 
 const doRefresh = async () => {
@@ -299,24 +311,18 @@ onUnmounted(() => {
                     {{ t("device.refresh") }}
                 </a-button>
                 
-                <!-- 导入网络设备按钮 -->
-                <a-button @click="showImportDialog = true">
-                    <template #icon>
-                        <icon-import/>
-                    </template>
-                    {{ t("deviceManage.importNetworkDevice") }}
-                </a-button>
-                
-                <!-- 批量操作工具栏 -->
+                <!-- 操作工具栏 -->
                 <BatchOperationToolbar 
                     @batch-upload="handleBatchUpload"
                     @batch-delete="handleBatchDelete"
                     @batch-install="handleBatchInstall"
                     @batch-uninstall="handleBatchUninstall"
+                    @import-network-device="handleImportNetworkDevice"
+                    @scan-mdns="handleScanMdns"
                 />
                 
                 <!-- 更多操作 -->
-                <a-dropdown trigger="hover">
+                <!-- <a-dropdown trigger="hover">
                     <a-button>
                         <template #icon>
                             <icon-caret-down/>
@@ -327,7 +333,7 @@ onUnmounted(() => {
                             {{ t("deviceManage.loadFromDatabase") }}
                         </a-doption>
                     </template>
-                </a-dropdown>
+                </a-dropdown> -->
             </div>
         </div>
         

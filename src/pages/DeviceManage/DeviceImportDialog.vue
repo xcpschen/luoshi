@@ -386,38 +386,22 @@ defineExpose({
     transition: all 0.3s ease;
     background-color: #f9fafb;
     
+    // 无文件状态
     &.no-files {
         border-color: #e5e7eb;
         background-color: #f9fafb;
     }
     
+    // 有文件状态
     &.has-files {
-        border-color: #e5e7eb;
-        background-color: #f9fafb;
+        border-color: #10b981;
+        background-color: #f0fdf4;
     }
     
-    // 拖拽中
+    // 拖拽状态
     &.drag-over {
         border-color: #bfdbfe;
         background-color: #eff6ff;
-    }
-    
-    // 深色模式
-    :deep(.dark &) {
-        &.no-files {
-            border-color: rgba(255, 255, 255, 0.1);
-            background-color: rgba(0, 0, 0, 0.2);
-        }
-        
-        &.has-files {
-            border-color: rgba(16, 185, 129, 0.3);
-            background-color: rgba(16, 185, 129, 0.1);
-        }
-        
-        &.drag-over {
-            border-color: rgba(59, 130, 246, 0.5);
-            background-color: rgba(59, 130, 246, 0.1);
-        }
     }
 }
 
@@ -621,6 +605,29 @@ defineExpose({
     span {
         font-size: 14px;
         font-weight: 600;
+    }
+}
+</style>
+
+<style lang="less">
+// 深色模式下的上传容器（非 scoped 样式）
+.dark .import-dialog-content .upload-container {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    
+    &.no-files {
+        border-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    &.has-files {
+        border-color: rgba(16, 185, 129, 0.4);
+        background-color: rgba(16, 185, 129, 0.1);
+    }
+    
+    &.drag-over {
+        border-color: rgba(59, 130, 246, 0.5);
+        background-color: rgba(59, 130, 246, 0.15);
     }
 }
 </style>

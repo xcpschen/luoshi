@@ -13,6 +13,8 @@ const emit = defineEmits<{
     (e: "batch-delete"): void;
     (e: "batch-install"): void;
     (e: "batch-uninstall"): void;
+    (e: "import-network-device"): void;
+    (e: "scan-mdns"): void;
 }>();
 
 const showBatchMenu = ref(false);
@@ -44,6 +46,18 @@ const handleBatchUninstall = () => {
     emit("batch-uninstall");
     showBatchMenu.value = false;
 };
+
+// 导入网络设备
+const handleImportNetworkDevice = () => {
+    emit("import-network-device");
+    showBatchMenu.value = false;
+};
+
+// 扫描 mDNS
+const handleScanMdns = () => {
+    emit("scan-mdns");
+    showBatchMenu.value = false;
+};
 </script>
 
 <template>
@@ -54,20 +68,34 @@ const handleBatchUninstall = () => {
             position="bottom"
         >
             <a-button type="primary">
-                <template #icon>
-                    <div class="flex items-center gap-1">
-                        <icon-apps/>
-                        <icon-caret-down/>
-                    </div>
-                </template>
-                {{ t("batchOperation.title") }}
-                <span v-if="selectionCount > 0" class="ml-1 text-xs">
-                    ({{ selectionCount }})
-                </span>
-            </a-button>
+                    <template #icon>
+                        <div class="flex items-center gap-1">
+                            <icon-apps/>
+                            <icon-caret-down/>
+                        </div>
+                    </template>
+                    {{ t("operation.title") }}
+                    <span v-if="selectionCount > 0" class="ml-1 text-xs">
+                        ({{ selectionCount }})
+                    </span>
+                </a-button>
             
             <template #content>
                 <div class="batch-operation-menu">
+                    <a-doption @click="handleScanMdns">
+                        <template #icon>
+                            <icon-scan/>
+                        </template>
+                        {{ t("deviceManage.scanMdns") }}
+                    </a-doption>
+                    
+                    <a-doption @click="handleImportNetworkDevice">
+                        <template #icon>
+                            <icon-import/>
+                        </template>
+                        {{ t("deviceManage.importNetworkDevice") }}
+                    </a-doption>
+                    
                     <a-doption @click="handleBatchUpload">
                         <template #icon>
                             <icon-upload/>

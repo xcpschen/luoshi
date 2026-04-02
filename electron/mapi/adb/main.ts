@@ -377,7 +377,7 @@ class AdbScanner {
 
 // IPC Handler
 ipcMain.handle("adb:scannerConnect", async (event, password: string, callbackId: string) => {
-    console.log("[Main] 收到 scannerConnect 请求, password:", password, "callbackId:", callbackId);
+    console.log("[Main] 收到 scannerConnect 请求，password:", password, "callbackId:", callbackId);
 
     try {
         const scanner = new AdbScanner();
@@ -398,6 +398,45 @@ ipcMain.handle("adb:scannerConnect", async (event, password: string, callbackId:
         console.error("[Main] scannerConnect 处理失败:", error);
         return {success: false, error: error.message || String(error)};
     }
+});
+
+// mDNS Scan IPC Handler
+ipcMain.handle("adb:scanMdns", async () => {
+    console.log("[Main] 收到 scanMdns 请求");
+
+    const devices: DeviceData[] = [];
+
+    return new Promise((resolve) => {
+        let scanTimeout = false;
+
+        // 设置超时（10 秒扫描时间）
+        const timeoutHandle = setTimeout(() => {
+            scanTimeout = true;
+            console.log("[Main] mDNS 扫描超时，返回已发现的设备:", devices.length);
+            resolve({ devices });
+        }, 10000);
+
+        const scanner = new DeviceScanner();
+        const altScanner = new DeviceScanner();
+
+        scanner.startScanning(MDNS_CONFIG.CONNECT_TYPE, (device: DeviceData) => {
+            if (!scanTimeout) {
+                console.log("[Main] mDNS 扫描发现设备:", device);
+                devices.push(device);
+            }
+        });
+
+        // 同时扫描备用类型
+        altScanner.startScanning(MDNS_CONFIG.CONNECT_TYPE_ALT, (device: DeviceData) => {
+            if (!scanTimeout) {
+                console.log("[Main] mDNS 扫描发现设备（备用）:", device);
+                // 避免重复添加
+                if (!devices.some(d => d.address === device.address && d.port === device.port)) {
+                    devices.push(device);
+                }
+            }
+        });
+    });
 });
 
 export default {};

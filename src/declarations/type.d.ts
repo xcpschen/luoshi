@@ -429,6 +429,13 @@ type DefsMapi = {
             device?: any;
             error?: string;
         }>;
+        scanMdns: () => Promise<{
+            devices: Array<{
+                name: string;
+                address: string;
+                port: number;
+            }>;
+        }>;
     };
     scrcpy: {
         getBinPath: (returnEmptyWhenDefault: boolean = false) => Promise<string>;
