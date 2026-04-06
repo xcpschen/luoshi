@@ -437,6 +437,91 @@ type DefsMapi = {
             }>;
         }>;
     };
+    imageRecognition: {
+        findImage: (options: {
+            deviceId: string;
+            templatePath: string;
+            threshold?: number;
+            timeout?: number;
+        }) => Promise<{
+            success: boolean;
+            result?: {
+                found: boolean;
+                confidence: number;
+                x?: number;
+                y?: number;
+                width?: number;
+                height?: number;
+                responseTime?: number;
+                engine?: string;
+                error?: string;
+            };
+            error?: string;
+        }>;
+        findImages: (options: Array<{
+            deviceId: string;
+            templatePath: string;
+            threshold?: number;
+        }>) => Promise<{
+            success: boolean;
+            results?: Array<{
+                deviceId: string;
+                found: boolean;
+                confidence: number;
+                x?: number;
+                y?: number;
+                width?: number;
+                height?: number;
+                responseTime?: number;
+                engine?: string;
+                error?: string;
+            }>;
+            error?: string;
+        }>;
+        getServiceStatus: () => Promise<{
+            success: boolean;
+            statuses?: Array<{
+                name: string;
+                available: boolean;
+                load: number;
+                avgResponseTime: number;
+                successRate: number;
+                totalRequests: number;
+                failedRequests: number;
+                extra?: Record<string, any>;
+            }>;
+            error?: string;
+        }>;
+        getRecommendedService: () => Promise<{
+            success: boolean;
+            service?: string | null;
+            error?: string;
+        }>;
+        switchService: (serviceType: string, config?: any) => Promise<{
+            success: boolean;
+            error?: string;
+        }>;
+        config: {
+            getConfig: () => Promise<{
+                enabled: boolean;
+                serviceType: string;
+                services: {
+                    remote: any;
+                    local: any;
+                    cloud: any;
+                };
+                fallbackServices: string[];
+            }>;
+            setConfig: (config: any) => Promise<void>;
+            updateConfig: (updates: any) => Promise<any>;
+            isEnabled: () => Promise<boolean>;
+            setEnabled: (enabled: boolean) => Promise<void>;
+            getServiceType: () => Promise<string>;
+            setServiceType: (serviceType: string) => Promise<void>;
+            getServiceConfig: (serviceType: string) => Promise<any>;
+            updateServiceConfig: (serviceType: string, updates: any) => Promise<void>;
+        };
+    };
     scrcpy: {
         getBinPath: (returnEmptyWhenDefault: boolean = false) => Promise<string>;
         spawnShell: (

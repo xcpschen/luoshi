@@ -6,6 +6,7 @@ import SettingBasic from "../components/Setting/SettingBasic.vue";
 import SettingEnv from "../components/Setting/SettingEnv.vue";
 import SettingAbout from "../components/Setting/SettingAbout.vue";
 import ClusterSetting from "./Setting/ClusterSetting.vue";
+import ImageRecognitionSettings from "./Settings/ImageRecognitionSettings.vue";
 
 let tabContentScroller: TabContentScroller | null = null;
 const contentContainer = ref<HTMLElement | null>(null);
@@ -61,6 +62,12 @@ onBeforeUnmount(() => {
                     {{ t("setting.cluster.title") }}
                 </div>
             </div>
+            <div data-section="imageRecognition" class="p-2 rounded-lg mb-4 cursor-pointer">
+                <div class="text-base">
+                    <icon-image />
+                    {{ t("setting.imageRecognition.title") }}
+                </div>
+            </div>
             <!-- <div data-section="about" class="p-2 rounded-lg mb-4 cursor-pointer">
                 <div class="text-base">
                     <icon-user />
@@ -85,6 +92,13 @@ onBeforeUnmount(() => {
                     <div class="text-base font-bold mb-4">{{ t("setting.cluster.title") }}</div>
                     <div>
                         <ClusterSetting />
+                    </div>
+                </div>
+                <div class="border-b border-solid border-gray-200 dark:border-gray-800 my-6"></div>
+                <div data-section="imageRecognition" class="scroll-mt-4">
+                    <div class="text-base font-bold mb-4">{{ t("setting.imageRecognition.title") }}</div>
+                    <div>
+                        <ImageRecognitionSettings />
                     </div>
                 </div>
                 <div v-if="0" class="border-b border-solid border-gray-200 dark:border-gray-800 my-6"></div>

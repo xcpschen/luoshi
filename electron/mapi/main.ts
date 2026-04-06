@@ -13,6 +13,7 @@ import updater from "./updater/main";
 import serve from "./serve/main";
 import adb from "./adb/main";
 import clusterConfig from "./clusterConfig/main";
+import imageRecognition from "./imageRecognition/main";
 
 const $mapi = {
     app,
@@ -30,6 +31,7 @@ const $mapi = {
     serve,
     adb,
     clusterConfig,
+    imageRecognition,
 };
 
 export const MAPI = {
@@ -45,6 +47,10 @@ export const MAPI = {
         const dbInstance = $mapi.db.getInstance();
         await $mapi.clusterConfig.init(dbInstance);
         console.log('[MAPI] ClusterConfig initialized');
+        // 暂时禁用图像识别服务初始化
+        // await $mapi.imageRecognition.init();
+        // $mapi.imageRecognition.register();
+        console.log('[MAPI] ImageRecognition disabled for now');
     },
     ready() {
         $mapi.keys.ready();
@@ -52,5 +58,6 @@ export const MAPI = {
     destroy() {
         $mapi.keys.destroy();
         $mapi.serve.stop();
+        // $mapi.imageRecognition.destroy();
     },
 };

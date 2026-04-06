@@ -131,6 +131,40 @@ const versions = [
             console.log('Database migration v2: cluster_config tables created');
         },
     },
+    {
+        version: 3,
+        up: async (db: DB) => {
+            // 创建图像识别配置表
+            await db.execute(`
+                CREATE TABLE IF NOT EXISTS image_recognition_config (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    config_key VARCHAR(64) UNIQUE NOT NULL,
+                    config_value TEXT NOT NULL,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+            
+            // 创建索引
+            await db.execute(`
+                CREATE INDEX IF NOT EXISTS idx_image_recognition_config_key 
+                ON image_recognition_config(config_key)
+            `);
+            
+            // 插入默认配置
+            await db.execute(`
+                INSERT OR IGNORE INTO image_recognition_config (config_key, config_value, updated_at)
+                VALUES 
+                    ('enabled', 'true', CURRENT_TIMESTAMP),
+                    ('service_type', 'local', CURRENT_TIMESTAMP),
+                    ('remote_config', '{"serverUrl":"ws://localhost:8765","defaultThreshold":0.8,"defaultTimeout":30000,"maxRetries":3}', CURRENT_TIMESTAMP),
+                    ('local_config', '{"defaultThreshold":0.8,"defaultTimeout":30000,"maxRetries":0}', CURRENT_TIMESTAMP),
+                    ('cloud_config', '{"apiKey":"","apiSecret":"","endpoint":"","defaultThreshold":0.8,"defaultTimeout":10000,"maxRetries":1}', CURRENT_TIMESTAMP),
+                    ('fallback_services', '["local","cloud"]', CURRENT_TIMESTAMP)
+            `);
+            
+            console.log('Database migration v3: image_recognition_config table created');
+        },
+    },
 ];
 
 export default {
