@@ -7,12 +7,60 @@ import {
 } from '../types';
 import { readFileSync } from 'fs';
 
-// OpenCV 实例（已禁用）
+// OpenCV 实例（延迟加载）
 let cv: any = null;
+let isLoading = false;
+let loadPromise: Promise<any> | null = null;
 
+/**
+ * 延迟加载 OpenCV（仅在需要时加载）
+ * 使用 import() 动态导入，避免阻塞主界面
+ */
 async function loadOpenCV(): Promise<any> {
-    // 暂时禁用 OpenCV 加载，避免阻塞主界面
-    return null;
+    // 如果已经加载完成，直接返回
+    if (cv) {
+        return cv;
+    }
+    
+    // 如果正在加载，等待加载完成
+    if (loadPromise) {
+        return loadPromise;
+    }
+    
+    // 开始加载
+    loadPromise = (async () => {
+        try {
+            console.log('[LocalRecognition] Starting to load OpenCV...');
+            
+            // 动态导入（不会阻塞主线程）
+            const opencvModule = await import('@techstark/opencv-js');
+            cv = opencvModule.default || opencvModule;
+            
+            // 等待 OpenCV 初始化
+            if (cv && typeof cv.then === 'function') {
+                await cv;
+            }
+            
+            console.log('[LocalRecognition] OpenCV loaded successfully');
+            return cv;
+        } catch (error) {
+            console.warn('[LocalRecognition] Failed to load OpenCV:', error);
+            cv = null;
+            return null;
+        } finally {
+            isLoading = false;
+        }
+    })();
+    
+    return loadPromise;
+}
+
+/**
+ * 获取 OpenCV 实例（不阻塞）
+ * 如果未加载，返回 null
+ */
+function getOpenCV(): any {
+    return cv;
 }
 
 export class LocalRecognitionService implements IImageRecognitionService {
@@ -35,14 +83,19 @@ export class LocalRecognitionService implements IImageRecognitionService {
             return;
         }
         
-        await loadOpenCV();
-        this.isInitialized = true;
+        // 异步加载 OpenCV，不阻塞初始化
+        loadOpenCV().then(() => {
+            if (cv) {
+                console.log('[LocalRecognition] OpenCV loaded and ready');
+            } else {
+                console.log('[LocalRecognition] Running in fallback mode (no OpenCV)');
+            }
+        }).catch(error => {
+            console.error('[LocalRecognition] Failed to load OpenCV:', error);
+        });
         
-        if (!cv) {
-            console.log('[LocalRecognition] Service initialized in fallback mode');
-        } else {
-            console.log('[LocalRecognition] Service initialized with OpenCV');
-        }
+        this.isInitialized = true;
+        console.log('[LocalRecognition] Service initialized (non-blocking)');
     }
     
     async destroy(): Promise<void> {

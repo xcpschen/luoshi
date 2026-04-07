@@ -87,7 +87,7 @@ const start = async (): Promise<number> => {
             }
 
             ws.on("message", (message: Buffer) => {
-                // Log.info(`Received message from ${clientType} (${deviceId}): ` + message.toString());
+                Log.info(`Received message from ${clientType} (${deviceId}): ` + message.toString());
                 try {
                     const data = JSON.parse(message.toString());
                     if (clientType === "DeviceManage") {

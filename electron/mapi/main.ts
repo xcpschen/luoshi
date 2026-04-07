@@ -14,6 +14,7 @@ import serve from "./serve/main";
 import adb from "./adb/main";
 import clusterConfig from "./clusterConfig/main";
 import imageRecognition from "./imageRecognition/main";
+import recorder, { registerRecorderHandlers } from "./recorder/main";
 
 const $mapi = {
     app,
@@ -32,6 +33,7 @@ const $mapi = {
     adb,
     clusterConfig,
     imageRecognition,
+    recorder,
 };
 
 export const MAPI = {
@@ -51,6 +53,9 @@ export const MAPI = {
         // await $mapi.imageRecognition.init();
         // $mapi.imageRecognition.register();
         console.log('[MAPI] ImageRecognition disabled for now');
+        // 注册录制器 IPC 处理器
+        registerRecorderHandlers();
+        console.log('[MAPI] Recorder handlers registered');
     },
     ready() {
         $mapi.keys.ready();

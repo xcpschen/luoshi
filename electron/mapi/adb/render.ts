@@ -6,6 +6,7 @@ import fs from "node:fs";
 import { extraResolveBin } from "../../lib/env";
 import { FileUtil, TimeUtil } from "../../lib/util";
 import { Apps } from "../app";
+import touch from './touch';
 
 let client = null;
 window.addEventListener("beforeunload", () => {
@@ -456,6 +457,8 @@ export default {
     scannerConnect,
     forwardPort,
     removeForwardPort,
+    // Touch events
+    ...touch,
 };
 
 export const ADB = {

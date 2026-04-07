@@ -18,6 +18,7 @@ import adb from "./adb/render";
 import scrcpy from "./scrcpy/render";
 import serve from "./serve/render";
 import clusterConfig from "./clusterConfig/render";
+import recorder from "./recorder/render";
 
 export const MAPI = {
     init(env: typeof AppEnv | null = null) {
@@ -41,6 +42,7 @@ export const MAPI = {
                 scrcpy,
                 serve,
                 clusterConfig,
+                recorder,
             });
             db.init();
             event.init();

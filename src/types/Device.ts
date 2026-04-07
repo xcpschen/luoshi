@@ -51,3 +51,17 @@ export type ForwardInfo = {
     from: number;
     to: number;
 }
+
+// Touch 事件相关类型
+export interface TouchPosition {
+    x: number;
+    y: number;
+}
+
+export interface TouchOptions {
+    duration?: number;
+}
+
+export interface InputOptions {
+    clearFirst?: boolean;
+}

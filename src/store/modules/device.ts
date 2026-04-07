@@ -568,10 +568,10 @@ export const deviceStore = defineStore("device", {
             }
             Dialog.loadingOn(t("device.mirroring"));
             const setting = {
-                dimWhenMirror: await this.settingGet(device, "dimWhenMirror", "yes"),
+                dimWhenMirror: await this.settingGet(device, "dimWhenMirror", "no"),
                 alwaysTop: await this.settingGet(device, "alwaysTop", "no"),
                 mirrorSound: await this.settingGet(device, "mirrorSound", "no"),
-                videoBitRate: await this.settingGet(device, "videoBitRate", "2M"),
+                videoBitRate: await this.settingGet(device, "videoBitRate", "4M"),
                 maxFps: await this.settingGet(device, "maxFps", "60"),
                 scrcpyArgs: await this.settingGet(device, "scrcpyArgs", ""),
                 videoCodec: await this.settingGet(device, "videoCodec", "h265"),

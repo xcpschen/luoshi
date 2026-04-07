@@ -281,27 +281,9 @@ export const useDeviceUnifiedStore = defineStore('deviceUnified', () => {
                 ]
             )
 
-            // 保存连接信息
-            const conn = newDevice.connections[0]
-            await window.$mapi.db.execute(
-                `INSERT OR REPLACE INTO device_connection (
-                    unified_id, connection_id, connection_type, status, address,
-                    connected_at, last_active_at, is_default
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    newDevice.unifiedId,
-                    conn.id,
-                    conn.type,
-                    conn.status,
-                    conn.address,
-                    conn.connectedAt.toISOString(),
-                    conn.lastActiveAt.toISOString(),
-                    conn.isDefault ? 1 : 0
-                ]
-            )
-
-            unifiedDevices.value.push(newDevice)
-            console.log('[DeviceUnified] 创建新设备:', newDevice.name, unifiedId)
+            // 保存到数据库后，替换整个数组以触发响应式更新
+            unifiedDevices.value = [...unifiedDevices.value, newDevice]
+            console.log('[DeviceUnified] 创建新设备:', newDevice.name, unifiedId, '总计:', unifiedDevices.value.length)
         } catch (err: any) {
             console.error('[DeviceUnified] 保存设备到数据库失败:', err)
         }
@@ -321,20 +303,32 @@ export const useDeviceUnifiedStore = defineStore('deviceUnified', () => {
         )
 
         if (existingConnection) {
-            // 更新现有连接状态
+            // 更新现有连接状态 - 创建新对象以触发响应式更新
             const oldStatus = existingConnection.status
-            existingConnection.status = adbDevice.state as EnumDeviceStatus || 'offline'
-            existingConnection.lastActiveAt = new Date()
+            const newStatus = adbDevice.state as EnumDeviceStatus || 'offline'
             
-            // 如果状态发生变化，同步到数据库
-            if (oldStatus !== existingConnection.status) {
-                console.log(`[DeviceUnified] 连接状态变化：${adbDevice.id} ${oldStatus} -> ${existingConnection.status}`)
+            if (oldStatus !== newStatus) {
+                existingConnection.status = newStatus
+                existingConnection.lastActiveAt = new Date()
+                
+                // 替换整个 connections 数组以触发响应式更新
+                const deviceIndex = unifiedDevices.value.findIndex(d => d.unifiedId === existingDevice.unifiedId)
+                if (deviceIndex !== -1) {
+                    const device = unifiedDevices.value[deviceIndex]
+                    unifiedDevices.value[deviceIndex] = {
+                        ...device,
+                        connections: [...device.connections]
+                    }
+                }
+                
+                console.log(`[DeviceUnified] 连接状态变化：${adbDevice.id} ${oldStatus} -> ${newStatus}`)
+                // 同步到数据库
                 try {
                     await window.$mapi.db.execute(
                         `UPDATE device_connection SET status = ?, last_active_at = ? WHERE connection_id = ?`,
                         [
-                            existingConnection.status,
-                            existingConnection.lastActiveAt.toISOString(),
+                            newStatus,
+                            new Date().toISOString(),
                             existingConnection.id
                         ]
                     )
@@ -344,7 +338,7 @@ export const useDeviceUnifiedStore = defineStore('deviceUnified', () => {
                 }
             }
         } else {
-            // 添加新连接
+            // 添加新连接 - 创建新的 connections 数组
             const newConnection: DeviceConnection = {
                 id: crypto.randomUUID(),
                 type: connectionType,
@@ -354,31 +348,41 @@ export const useDeviceUnifiedStore = defineStore('deviceUnified', () => {
                 lastActiveAt: new Date(),
                 isDefault: false
             }
-            existingDevice.connections.push(newConnection)
-            existingDevice.totalConnections++
-            existingDevice.updatedAt = new Date()
             
-            // 保存新连接到数据库
-            try {
-                await window.$mapi.db.execute(
-                    `INSERT INTO device_connection (
-                        unified_id, connection_id, connection_type, status, address,
-                        connected_at, last_active_at, is_default
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [
-                        existingDevice.unifiedId,
-                        newConnection.id,
-                        newConnection.type,
-                        newConnection.status,
-                        newConnection.address,
-                        newConnection.connectedAt.toISOString(),
-                        newConnection.lastActiveAt.toISOString(),
-                        newConnection.isDefault ? 1 : 0
-                    ]
-                )
-                console.log('[DeviceUnified] 新连接已保存到数据库:', adbDevice.id)
-            } catch (err: any) {
-                console.error('[DeviceUnified] 保存新连接到数据库失败:', err)
+            // 替换整个 connections 数组
+            const deviceIndex = unifiedDevices.value.findIndex(d => d.unifiedId === existingDevice.unifiedId)
+            if (deviceIndex !== -1) {
+                const device = unifiedDevices.value[deviceIndex]
+                const updatedConnections = [...device.connections, newConnection]
+                unifiedDevices.value[deviceIndex] = {
+                    ...device,
+                    connections: updatedConnections,
+                    totalConnections: device.totalConnections + 1,
+                    updatedAt: new Date()
+                }
+                
+                // 保存新连接到数据库
+                try {
+                    await window.$mapi.db.execute(
+                        `INSERT INTO device_connection (
+                            unified_id, connection_id, connection_type, status, address,
+                            connected_at, last_active_at, is_default
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [
+                            device.unifiedId,
+                            newConnection.id,
+                            newConnection.type,
+                            newConnection.status,
+                            newConnection.address,
+                            newConnection.connectedAt.toISOString(),
+                            newConnection.lastActiveAt.toISOString(),
+                            newConnection.isDefault ? 1 : 0
+                        ]
+                    )
+                    console.log('[DeviceUnified] 新连接已保存到数据库:', adbDevice.id)
+                } catch (err: any) {
+                    console.error('[DeviceUnified] 保存新连接到数据库失败:', err)
+                }
             }
         }
 
@@ -423,38 +427,52 @@ export const useDeviceUnifiedStore = defineStore('deviceUnified', () => {
                     existingDevice.identity.sdkVersion !== sdkVersion;
 
                 if (needsUpdate) {
-                    existingDevice.identity.brand = brand || 'Unknown';
-                    existingDevice.identity.model = model || 'Unknown';
-                    existingDevice.identity.androidVersion = androidVersion || 'Unknown';
-                    existingDevice.identity.sdkVersion = sdkVersion || 0;
-                    
-                    // 更新设备名称
-                    if (brand && brand !== 'Unknown' && model && model !== 'Unknown') {
-                        existingDevice.name = `${brand} ${model}`.trim();
-                    }
-                    
-                    existingDevice.updatedAt = new Date();
-                    
-                    // 保存到数据库
-                    try {
-                        await window.$mapi.db.execute(
-                            `UPDATE device_unified SET brand = ?, model = ?, android_version = ?, sdk_version = ?, name = ?, updated_at = ? WHERE unified_id = ?`,
-                            [
-                                existingDevice.identity.brand,
-                                existingDevice.identity.model,
-                                existingDevice.identity.androidVersion,
-                                existingDevice.identity.sdkVersion,
-                                existingDevice.name,
-                                existingDevice.updatedAt.toISOString(),
-                                existingDevice.unifiedId
-                            ]
-                        );
-                        console.log('[DeviceUnified] 设备信息已更新:', existingDevice.name);
-                    } catch (err: any) {
-                        console.error('[DeviceUnified] 更新设备信息失败:', err);
+                    // 更新设备信息 - 创建新对象以触发响应式更新
+                    const deviceIndex = unifiedDevices.value.findIndex(d => d.unifiedId === existingDevice.unifiedId)
+                    if (deviceIndex !== -1) {
+                        const device = unifiedDevices.value[deviceIndex]
+                        const updatedIdentity = {
+                            ...device.identity,
+                            brand: brand || 'Unknown',
+                            model: model || 'Unknown',
+                            androidVersion: androidVersion || 'Unknown',
+                            sdkVersion: sdkVersion || 0
+                        }
+                        
+                        // 更新设备名称
+                        let updatedName = device.name
+                        if (brand && brand !== 'Unknown' && model && model !== 'Unknown') {
+                            updatedName = `${brand} ${model}`.trim()
+                        }
+                        
+                        unifiedDevices.value[deviceIndex] = {
+                            ...device,
+                            identity: updatedIdentity,
+                            name: updatedName,
+                            updatedAt: new Date()
+                        }
+                        
+                        // 保存到数据库
+                        try {
+                            await window.$mapi.db.execute(
+                                `UPDATE device_unified SET brand = ?, model = ?, android_version = ?, sdk_version = ?, name = ?, updated_at = ? WHERE unified_id = ?`,
+                                [
+                                    updatedIdentity.brand,
+                                    updatedIdentity.model,
+                                    updatedIdentity.androidVersion,
+                                    updatedIdentity.sdkVersion,
+                                    updatedName,
+                                    new Date().toISOString(),
+                                    device.unifiedId
+                                ]
+                            )
+                            console.log('[DeviceUnified] 设备信息已更新:', updatedName)
+                        } catch (err: any) {
+                            console.error('[DeviceUnified] 更新设备信息失败:', err)
+                        }
                     }
                 } else {
-                    console.log('[DeviceUnified] 设备信息无需更新:', existingDevice.name);
+                    console.log('[DeviceUnified] 设备信息无需更新:', existingDevice.name)
                 }
             }
         } catch (err: any) {

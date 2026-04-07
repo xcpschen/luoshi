@@ -552,6 +552,26 @@ type DefsMapi = {
         getPort: () => Promise<number>;
         getAddress: () => Promise<string>;
     };
+    recorder: {
+        startRecording: (deviceId: string) => Promise<void>;
+        stopRecording: () => Promise<import("../types/Recorder").RecordedScript>;
+        recordAction: (action: Omit<import("../types/Recorder").RecordedAction, 'id' | 'timestamp'>) => Promise<void>;
+        getRecordingStatus: () => Promise<{
+            isRecording: boolean;
+            actionCount: number;
+            duration: number;
+        }>;
+        clearRecording: () => Promise<void>;
+        recordTap: (x: number, y: number, imageTemplate?: string) => Promise<void>;
+        recordSwipe: (
+            x1: number, y1: number,
+            x2: number, y2: number,
+            duration?: number,
+            imageTemplate?: string
+        ) => Promise<void>;
+        recordInput: (text: string) => Promise<void>;
+        recordWait: (duration: number, condition?: string) => Promise<void>;
+    };
     clusterConfig: {
         get: () => Promise<import("../types/ClusterConfig").ClusterConfig>;
         save: (config: import("../types/ClusterConfig").ClusterConfig) => Promise<boolean>;
