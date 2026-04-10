@@ -231,21 +231,24 @@ onMounted(() => {
         console.error('[DeviceManage] 初始化设备监听失败:', err);
     });
     
-    // 立即刷新一次设备列表，检测当前已连接的设备
-    deviceStore.refresh().then(() => {
-        console.log('[DeviceManage] 设备列表已刷新');
-    }).catch(err => {
-        console.error('[DeviceManage] 刷新设备列表失败:', err);
-    });
+    // 1. 先刷新设备列表，检测当前已连接的设备
+    console.log('[DeviceManage] 开始初始化，刷新设备列表...');
     
-    // 初始化设备管理（包括从数据库加载和同步当前状态）
-    deviceUnifiedStore.initialize().then(() => {
-        console.log('[DeviceManage] 初始化完成')
-    }).catch(err => {
-        console.error('[DeviceManage] 初始化失败:', err)
-    })
+    // 2. 刷新设备 store（这会触发 ADB 扫描和状态更新）
+    deviceStore.refresh()
+        .then(() => {
+            console.log('[DeviceManage] 设备列表已刷新');
+            // 3. 设备刷新完成后，初始化设备管理（包括从数据库加载和同步当前状态）
+            return deviceUnifiedStore.initialize();
+        })
+        .then(() => {
+            console.log('[DeviceManage] 初始化完成')
+        })
+        .catch(err => {
+            console.error('[DeviceManage] 初始化失败:', err)
+        })
     
-    // 设置设备监听器，实现实时更新
+    // 4. 设置设备监听器，实现实时更新
     setupDeviceWatcher()
 });
 

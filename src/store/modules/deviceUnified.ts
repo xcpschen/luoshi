@@ -95,16 +95,18 @@ export const useDeviceUnifiedStore = defineStore('deviceUnified', () => {
             })
 
             // 逐个处理设备
-            // 如果是首次同步（所有设备都标记为离线），则强制刷新设备信息
-            const isInitialSync = unifiedDevices.value.every(device => 
-                device.connections.every(conn => conn.status === EnumDeviceStatus.DISCONNECTED)
-            )
+            // 如果是首次同步（内存中没有设备或所有设备都标记为离线），则强制刷新设备信息
+            const isInitialSync = unifiedDevices.value.length === 0 || 
+                                  unifiedDevices.value.every(device => 
+                                      device.connections.every(conn => conn.status === EnumDeviceStatus.DISCONNECTED)
+                                  )
             
             for (const deviceRecord of deviceRecords) {
                 // 对于已连接的设备，确保信息是最新的
                 const isDeviceConnected = deviceRecord.runtime?.status === EnumDeviceStatus.CONNECTED
                 // 首次同步或设备连接时，强制刷新设备信息
                 const forceRefresh = isInitialSync || isDeviceConnected
+                console.log(`[DeviceUnified] 处理设备 ${deviceRecord.id}: isDeviceConnected=${isDeviceConnected}, forceRefresh=${forceRefresh}`)
                 await addOrUpdateDeviceFromRecord(deviceRecord, forceRefresh)
             }
 
