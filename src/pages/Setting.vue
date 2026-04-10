@@ -55,12 +55,12 @@ onBeforeUnmount(() => {
                     {{ t("page.setting.env") }}
                 </div>
             </div>
-            <div data-section="cluster" class="p-2 rounded-lg mb-4 cursor-pointer">
+            <!-- <div data-section="cluster" class="p-2 rounded-lg mb-4 cursor-pointer">
                 <div class="text-base">
                     <icon-cluster />
                     {{ t("setting.cluster.title") }}
                 </div>
-            </div>
+            </div> -->
             <!-- <div data-section="about" class="p-2 rounded-lg mb-4 cursor-pointer">
                 <div class="text-base">
                     <icon-user />
@@ -80,13 +80,13 @@ onBeforeUnmount(() => {
                         <SettingBasic />
                     </div>
                 </div>
-                <div class="border-b border-solid border-gray-200 dark:border-gray-800 my-6"></div>
+                <!-- <div class="border-b border-solid border-gray-200 dark:border-gray-800 my-6"></div>
                 <div data-section="cluster" class="scroll-mt-4">
                     <div class="text-base font-bold mb-4">{{ t("setting.cluster.title") }}</div>
                     <div>
                         <ClusterSetting />
                     </div>
-                </div>
+                </div> -->
                 <div v-if="0" class="border-b border-solid border-gray-200 dark:border-gray-800 my-6"></div>
                 <div v-if="0" data-section="env" class="scroll-mt-4">
                     <div class="text-base font-bold mb-4">{{ t("page.setting.env") }}</div>

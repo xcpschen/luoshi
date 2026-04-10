@@ -8,7 +8,7 @@ onMounted(async () => {
     // 模拟加载延迟，展示加载界面
     // await new Promise(resolve => setTimeout(resolve, 1000));
     loading.value = false;
-    Router.push("/device");
+    Router.push("/device-manage");
 });
 </script>
 

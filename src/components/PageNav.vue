@@ -14,12 +14,12 @@ const activeTab = computed(() => {
     switch (route.currentRoute.value.path) {
         case "/home":
             return "home";
-        case "/device":
-            return "device";
+        // case "/device":
+        //     return "device";
         case "/device-manage":
             return "device-manage";
-        case "/automation":
-            return "automation";
+        // case "/automation":
+        //     return "automation";
         case "/script":
             return "script";
         case "/lib":
@@ -70,7 +70,7 @@ const doUser = async () => {
             </div> -->
         </div>
         <div class="flex-grow mt-2">
-            <a
+            <!-- <a
                 class="page-nav-item block text-center py-3"
                 :class="activeTab === 'device' ? 'active' : ''"
                 @click="$router.push('/device')"
@@ -80,7 +80,7 @@ const doUser = async () => {
                     <icon-mobile class="text-xl"/>
                 </div>
                 <div class="text-sm">{{ $t("nav.device") }}</div>
-            </a>
+            </a> -->
             <a
                 class="page-nav-item block text-center py-3"
                 :class="activeTab === 'device-manage' ? 'active' : ''"
@@ -92,7 +92,7 @@ const doUser = async () => {
                 </div>
                 <div class="text-sm">{{ $t("nav.deviceManage") }}</div>
             </a>
-            <a
+            <!-- <a
                 class="page-nav-item block text-center py-3"
                 :class="activeTab === 'automation' ? 'active' : ''"
                 @click="$router.push('/automation')"
@@ -102,7 +102,7 @@ const doUser = async () => {
                     <icon-robot class="text-xl"/>
                 </div>
                 <div class="text-sm">{{ $t("nav.automation") }}</div>
-            </a>
+            </a> -->
             <!-- <a
                 class="page-nav-item block text-center py-3"
                 :class="activeTab === 'script' ? 'active' : ''"

@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { t } from "../../lang";
 import type { DeviceUnifiedRecord } from "../../types/DeviceUnified";
 import DeviceSelector from "./DeviceSelector.vue";
+import { EnumDeviceStatus } from "../../types/Device";
 
 const props = defineProps<{
     visible: boolean;
@@ -28,6 +29,17 @@ const visible = computed({
     get: () => props.visible,
     set: (value) => emit('update:visible', value)
 });
+
+// ArrayBuffer 转 Base64
+const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+};
 
 // 处理 APK 文件选择
 const handleSelectApkFiles = async () => {
@@ -75,36 +87,70 @@ const startInstall = async () => {
         });
     });
     
-    // 逐个设备安装
-    for (const deviceId of selectedDeviceIds.value) {
-        try {
-            installProgress.value.set(deviceId, {
-                status: 'installing',
-                progress: 0
-            });
+    // 获取选中的设备
+            const devices = props.allDevices.filter(d => selectedDeviceIds.value.has(d.unifiedId));
             
-            // TODO: 调用实际的安装 API
-            // 这里模拟安装过程
-            for (let i = 0; i <= 100; i += 10) {
-                installProgress.value.set(deviceId, {
-                    status: 'installing',
-                    progress: i
-                });
-                await new Promise(resolve => setTimeout(resolve, 100));
+            // 逐个设备安装
+            for (const device of devices) {
+                try {
+                    installProgress.value.set(device.unifiedId, {
+                        status: 'installing',
+                        progress: 0
+                    });
+                    
+                    // 获取设备的在线连接
+                    const onlineConnection = device.connections.find(
+                        conn => conn.status === EnumDeviceStatus.DEVICE
+                    );
+                    
+                    if (!onlineConnection) {
+                        throw new Error('设备未连接');
+                    }
+                    
+                    // 使用 connection.address 作为 ADB 设备 ID（而不是 unifiedId 或 connection.id）
+                    const adbSerial = onlineConnection.address;
+                    
+                    // 逐个文件安装
+                    for (let fileIndex = 0; fileIndex < selectedApkFiles.value.length; fileIndex++) {
+                        const file = selectedApkFiles.value[fileIndex];
+                        const progressPerFile = 100 / selectedApkFiles.value.length;
+                        
+                        // 读取文件为 ArrayBuffer
+                        const arrayBuffer = await file.arrayBuffer();
+                        const base64 = arrayBufferToBase64(arrayBuffer);
+                        
+                        // 创建临时文件路径
+                        // @ts-ignore - file API exists
+                        const tempPath = await window.$mapi.file.temp('apk', 'install');
+                        
+                        // 写入临时文件
+                        // @ts-ignore - file API exists
+                        await window.$mapi.file.write(tempPath, base64, { encoding: 'base64' });
+                        
+                        // 调用 ADB 安装 API（使用 connection.address 作为设备 ID）
+                        // @ts-ignore - adb API exists
+                        await window.$mapi.adb.install(adbSerial, tempPath);
+                        
+                        // 更新进度
+                        installProgress.value.set(device.unifiedId, {
+                            status: 'installing',
+                            progress: Math.min(100, (fileIndex + 1) * progressPerFile)
+                        });
+                    }
+                    
+                    installProgress.value.set(device.unifiedId, {
+                        status: 'success',
+                        progress: 100
+                    });
+                } catch (error: any) {
+                    console.error(`Failed to install on device ${device.unifiedId}:`, error);
+                    installProgress.value.set(device.unifiedId, {
+                        status: 'error',
+                        progress: 0,
+                        error: error.message || '安装失败'
+                    });
+                }
             }
-            
-            installProgress.value.set(deviceId, {
-                status: 'success',
-                progress: 100
-            });
-        } catch (error) {
-            installProgress.value.set(deviceId, {
-                status: 'error',
-                progress: 0,
-                error: (error as Error).message
-            });
-        }
-    }
     
     isInstalling.value = false;
 };

@@ -425,7 +425,7 @@
     "monitor.refresh": "Refresh",
     "msg.fileSavedTo": "File saved to {path}",
     "nav.device": "Device",
-    "nav.deviceManage": "Device Manage",
+    "nav.deviceManage": "Device",
     "nav.automation": "Automation",
     "nav.feedback": "Feedback",
     "nav.guide": "Guide",

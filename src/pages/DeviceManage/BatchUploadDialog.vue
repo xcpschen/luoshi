@@ -4,6 +4,7 @@ import { t } from "../../lang";
 import { Dialog } from "../../lib/dialog";
 import type { DeviceUnifiedRecord } from "../../types/DeviceUnified";
 import DeviceSelector from "./DeviceSelector.vue";
+import { EnumDeviceStatus } from "../../types/Device";
 
 const props = defineProps<{
     visible: boolean;
@@ -116,16 +117,17 @@ const startUpload = async () => {
                     throw new Error('Device not found or not connected');
                 }
                 
-                // 获取第一个连接的 ID（ADB 序列号）
+                // 获取在线连接（使用 EnumDeviceStatus.DEVICE 判断）
                 const connection = device.connections.find(c => 
-                    c.status === 'connected' || c.status === 'device'
+                    c.status === EnumDeviceStatus.DEVICE
                 );
                 
                 if (!connection) {
                     throw new Error('No active connection found');
                 }
                 
-                const adbSerial = connection.address || device.unifiedId;
+                // 使用 connection.address 作为 ADB 设备 ID（而不是 unifiedId）
+                const adbSerial = connection.address;
                 
                 // 上传每个文件
                 for (let i = 0; i < selectedFiles.value.length; i++) {
@@ -138,9 +140,26 @@ const startUpload = async () => {
                     // 调用 ADB API 上传文件
                     await window.$mapi.adb.filePush(adbSerial, localPath, devicePath, {
                         progress: (type: string, data: any) => {
-                            console.log(`[BatchUpload] 进度：${type}`, data);
+                            console.log(`[BatchUpload] 进度：${type}`, data, '文件索引:', i, '总文件数:', selectedFiles.value.length);
                             if (type === 'progress') {
-                                const progress = Math.round(((i + data / 100) / selectedFiles.value.length) * 100);
+                                // data 可能是 0-100 的百分比值，也可能是已传输字节数
+                                let fileProgress: number;
+                                
+                                // 判断 data 的类型和范围
+                                if (typeof data === 'number' && data <= 100) {
+                                    // data 是百分比（0-100）
+                                    fileProgress = data / 100;
+                                } else if (typeof data === 'number' && data > 100) {
+                                    // data 可能是已传输字节数，需要转换
+                                    // 这里简单处理，假设最大值不会超过 1000%
+                                    fileProgress = Math.min(1, data / 100 / 10); // 保守估计
+                                } else {
+                                    fileProgress = 0;
+                                }
+                                
+                                const totalProgress = ((i + fileProgress) / selectedFiles.value.length) * 100;
+                                const progress = Math.min(100, Math.round(totalProgress));
+                                console.log(`[BatchUpload] 计算进度：fileProgress=${fileProgress}, totalProgress=${totalProgress}, final=${progress}`);
                                 uploadProgress.value.set(deviceId, {
                                     status: 'uploading',
                                     progress: progress
@@ -149,8 +168,8 @@ const startUpload = async () => {
                         }
                     });
                     
-                    // 更新进度
-                    const progress = Math.round(((i + 1) / selectedFiles.value.length) * 100);
+                    // 更新进度（文件上传完成）
+                    const progress = Math.min(100, Math.round(((i + 1) / selectedFiles.value.length) * 100));
                     uploadProgress.value.set(deviceId, {
                         status: 'uploading',
                         progress: progress
