@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import FileExt from "../../components/common/FileExt.vue";
 import {Dialog} from "../../lib/dialog";
 import {t} from "../../lang";
@@ -25,6 +25,19 @@ const isListView = ref(true);
 const sortOrderName = ref("asc");
 const sortOrderModifiedTime = ref("asc");
 const currentSortField = ref("name");
+
+// 监听文件选中状态变化，更新 selectedFiles
+const updateSelectedFiles = () => {
+    const checkedFiles = fileRecords.value
+        .filter(f => f.checked)
+        .map(f => currentPath.value + (currentPath.value.endsWith('/') ? '' : '/') + f.name);
+    selectedFiles.value = checkedFiles;
+};
+
+// 使用 watch 监听 fileRecords 变化，自动更新 selectedFiles
+watch(fileRecords, () => {
+    updateSelectedFiles();
+}, { deep: true });
 
 const show = (d: DeviceRecord) => {
     if (d.status !== EnumDeviceStatus.CONNECTED) {
@@ -121,7 +134,8 @@ const doRefresh = async () => {
                 icon: dir.icon,
                 isDirectory: true,
                 size: 0,
-                updateTime: ""
+                updateTime: "",
+                checked: false
             }));
         } else {
             console.log("Loading directory:", currentPath.value);
@@ -132,9 +146,13 @@ const doRefresh = async () => {
                 path: currentPath.value + "/" + f.name,
                 isDirectory: f.type === "directory",
                 size: f.size,
-                updateTime: f.updateTime
+                updateTime: f.updateTime,
+                checked: false
             }));
         }
+        
+        // 刷新后清空选中状态
+        selectedFiles.value = [];
     } catch (error) {
         console.error("Refresh error:", error);
         Dialog.tipError(t("device.fileListFailed"));
@@ -227,6 +245,55 @@ const openFileSelector = async () => {
     }
 };
 
+const doDownload = async () => {
+    if (selectedFiles.value.length === 0) {
+        Dialog.tipError(t('device.noFilesSelected'));
+        return;
+    }
+    
+    const path = await window.$mapi.file.openDirectory();
+    if (path) {
+        Dialog.loadingOn(t("status.downloading"));
+        for (let filePath of selectedFiles.value) {
+            const fileName = filePath.split('/').pop() || filePath.split('\\').pop() || 'unknown';
+            const targetPath = path + '/' + fileName;
+            try {
+                // @ts-ignore - adb API exists
+                await window.$mapi.adb.filePull(currentDevice.value.id, filePath, targetPath);
+            } catch (error: any) {
+                console.error('Download file error:', error);
+            }
+        }
+        Dialog.loadingOff();
+        Dialog.tipSuccess(t("device.downloadSuccess"));
+    }
+};
+
+const doDelete = async () => {
+    if (selectedFiles.value.length === 0) {
+        Dialog.tipError(t('device.noFilesSelected'));
+        return;
+    }
+    
+    const result = await Dialog.confirm(t('device.deleteConfirm'));
+    if (!result) {
+        return;
+    }
+    
+    Dialog.loadingOn(t("common.deleting"));
+    for (let filePath of selectedFiles.value) {
+        try {
+            // @ts-ignore - adb API exists
+            await window.$mapi.adb.fileDelete(currentDevice.value.id, filePath);
+        } catch (error: any) {
+            console.error('Delete file error:', error);
+        }
+    }
+    Dialog.loadingOff();
+    Dialog.tipSuccess(t("common.deleteSuccess"));
+    doRefresh();
+};
+
 const toggleView = () => {
     isListView.value = !isListView.value;
 };
@@ -281,6 +348,18 @@ defineExpose({
                             <icon-upload />
                         </template>
                         {{ $t("common.addFile") }}
+                    </a-button>
+                    <a-button class="mr-1" @click="doDownload" :disabled="selectedFiles.length === 0">
+                        <template #icon>
+                            <icon-download />
+                        </template>
+                        {{ $t("common.download") }}
+                    </a-button>
+                    <a-button class="mr-1" @click="doDelete" :disabled="selectedFiles.length === 0">
+                        <template #icon>
+                            <icon-delete />
+                        </template>
+                        {{ $t("common.delete") }}
                     </a-button>
                     <a-button class="mr-1" @click="toggleView">
                         <template #icon>
