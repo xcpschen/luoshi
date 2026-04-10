@@ -252,6 +252,9 @@ onMounted(() => {
 onUnmounted(() => {
     // 清理监听器
     cleanupDeviceWatcher()
+    // 清理 DeviceUnifiedStore 的监听器
+    // @ts-ignore - cleanup 方法已添加到 store
+    deviceUnifiedStore.cleanup()
 });
 </script>
 

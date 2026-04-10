@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import {
     DeviceUnifiedRecord,
     DeviceConnection,
@@ -654,6 +654,9 @@ export const useDeviceUnifiedStore = defineStore('deviceUnified', () => {
         console.log('[DeviceUnified] 清除离线设备:', offlineDevices.length)
     }
 
+    // 保存设备 store 的监听器
+    let stopWatchingDeviceStore: (() => void) | null = null
+    
     /**
      * 初始化设备管理（页面加载时调用）
      * 复用设备 store 的实时监听功能
@@ -667,7 +670,33 @@ export const useDeviceUnifiedStore = defineStore('deviceUnified', () => {
         // 2. 同步当前设备状态（会强制刷新设备信息）
         await syncDevices()
         
+        // 3. 监听设备 store 的变化，实现自动同步
+        const deviceStore = useDeviceStore()
+        stopWatchingDeviceStore = watch(
+            () => deviceStore.records,
+            async (newRecords, oldRecords) => {
+                console.log('[DeviceUnified] 检测到设备 store 变化，开始同步...')
+                console.log('[DeviceUnified] 旧记录数:', oldRecords?.length || 0)
+                console.log('[DeviceUnified] 新记录数:', newRecords.length)
+                
+                // 防抖处理，避免频繁同步
+                await syncDevices(false) // 不显示 loading
+            },
+            { deep: true }
+        )
+        
         console.log('[DeviceUnified] 设备管理初始化完成')
+    }
+    
+    /**
+     * 清理监听器
+     */
+    function cleanup() {
+        if (stopWatchingDeviceStore) {
+            stopWatchingDeviceStore()
+            stopWatchingDeviceStore = null
+            console.log('[DeviceUnified] 设备 store 监听器已清理')
+        }
     }
 
     /**
@@ -760,6 +789,7 @@ export const useDeviceUnifiedStore = defineStore('deviceUnified', () => {
         loadFromDatabase,
         clearOfflineDevices,
         removeDeviceConnection,
-        deleteDevice
+        deleteDevice,
+        cleanup
     }
 })
